@@ -9,23 +9,20 @@
 	<link rel="stylesheet" type="text/css" href="styles.css" />
 </head>
 <body>
-	<div id="map">
-	
-	</div>
-	<div id="display">
-	</div>
+	<div id="map"></div>
+
 <script type="text/javascript">
 
-	var slides = 	[
-						{id:'4qw_rot', width:25347, height:16946, res:0.789e-6},
-						{id:'zebravis', width:921600, height:380928, res:0.467e-6},
-						{id:'114_ileum_mens_azan', width:14969, height:38849, res:0.2325e-6}
-					],
-		slide = slides[2],
+	var slides = [
+		    {id:'4qw_rot', width:25347, height:16946, res:0.789e-6},
+			{id:'zebravis', width:921600, height:380928, res:0.467e-6},
+			{id:'114_ileum_mens_azan', width:14969, height:38849, res:0.2325e-6}
+			    ],
+		slide = slides[1],
 		url = 'http://anatomie01.lumc.nl/microscopy/slides/'+slide.id+'/',
 		minimapSize = {width:300,height:300};
 
-
+    //Custom CRS to translate between pixels and meters.
     L.CRS.Slide = L.extend(L.CRS.Simple, {
         transformation: (function(){
             var longestSide = Math.max(slide.width, slide.height);
@@ -44,23 +41,16 @@
 		width: slide.width,
 		height: slide.height,
 		id: slide.id,
-		attribution: '&copy; CASK Viewer'
+		attribution: 'Zoomify slide viewer by <a href="https://github.com/cmulders">Coen Mulders</a>'
 	}).addTo(map);
 	
+	//Prevent the map to zoom further than we specify
+	map.setMaxZoom(layer.options.maxNativeZoom);
 	
 	//reset the viewport to fit the current slide
 	map.fitBounds(layer.options.bounds);
 	
-	map.setMaxZoom(layer.options.maxNativeZoom);
-	
-	//L.control.scale({imageLayer:layer}).addTo(map);
-	L.control.scale().addTo(map);
-
-    map.on('move',function(){
-        document.getElementById('display').innerHTML = map.getCenter()+''
-    });
-    
-    map.setView(layer.options.bounds.getSouthEast(),1);
+	L.control.scale({imperial:false}).addTo(map);
 
 </script>
 </body>
