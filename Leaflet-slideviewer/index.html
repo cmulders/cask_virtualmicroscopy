@@ -1,0 +1,67 @@
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="https://leafletjs-cdn.s3.amazonaws.com/content/build/master/dist/leaflet.css" />
+	<script type="text/javascript" src="https://leafletjs-cdn.s3.amazonaws.com/content/build/master/dist/leaflet-src.js"></script>
+		
+	<script type="text/javascript" src="https://raw.githubusercontent.com/cmulders/Leaflet.Zoomify/master/L.TileLayer.Zoomify.js"></script>
+	<script type="text/javascript" src="custom-plugins/Leaflet.Control.SlideScale.js"></script>
+	
+	<link rel="stylesheet" type="text/css" href="styles.css" />
+</head>
+<body>
+	<div id="map">
+	
+	</div>
+	<div id="display">
+	</div>
+<script type="text/javascript">
+
+	var slides = 	[
+						{id:'4qw_rot', width:25347, height:16946, res:0.789e-6},
+						{id:'zebravis', width:921600, height:380928, res:0.467e-6},
+						{id:'114_ileum_mens_azan', width:14969, height:38849, res:0.2325e-6}
+					],
+		slide = slides[2],
+		url = 'http://anatomie01.lumc.nl/microscopy/slides/'+slide.id+'/',
+		minimapSize = {width:300,height:300};
+
+
+    L.CRS.Slide = L.extend(L.CRS.Simple, {
+        transformation: (function(){
+            var longestSide = Math.max(slide.width, slide.height);
+            var maxZoom = Math.ceil(Math.log(longestSide / 256) / Math.log(2));
+            var correctedRes = slide.res*Math.pow(2, maxZoom);
+            return new L.Transformation(1 / correctedRes, 0, -1 / correctedRes, 0)
+        })()
+    });
+    
+
+    var map = L.map('map', {
+        crs: L.CRS.Slide
+    });
+		
+	var layer = L.tileLayer.zoomify('http://anatomie01.lumc.nl/microscopy/slides/{ id }/{g}/{z}-{x}-{y}.jpg', {
+		width: slide.width,
+		height: slide.height,
+		id: slide.id,
+		attribution: '&copy; CASK Viewer'
+	}).addTo(map);
+	
+	
+	//reset the viewport to fit the current slide
+	map.fitBounds(layer.options.bounds);
+	
+	map.setMaxZoom(layer.options.maxNativeZoom);
+	
+	//L.control.scale({imageLayer:layer}).addTo(map);
+	L.control.scale().addTo(map);
+
+    map.on('move',function(){
+        document.getElementById('display').innerHTML = map.getCenter()+''
+    });
+    
+    map.setView(layer.options.bounds.getSouthEast(),1);
+
+</script>
+</body>
+</html>
