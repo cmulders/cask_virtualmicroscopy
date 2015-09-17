@@ -1,0 +1,17 @@
+html, body{
+	height:100%;
+}
+
+
+#map{
+	min-width:100%;
+	width:100%;
+    top: 50px;
+    bottom: 0;
+    position: absolute;
+}
+
+/* Fix for bootstrap */
+.leaflet-control-minimap{
+    box-sizing:content-box;
+}

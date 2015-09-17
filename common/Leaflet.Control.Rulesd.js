@@ -2,14 +2,16 @@
  * L.TileLayer.Zoomify display Zoomify tiles with Leaflet
  */
 
-L.Control.Scale.include({
+L.Control.Ruler.extend({
 	
 	_updateMetric: function (maxMeters) {
 		var meters = this._getRoundNum(maxMeters),
 			exp = Math.floor(Math.log10(maxMeters)),
 			scaleExp = 0;
-		
-		if(exp < -3) {
+
+		if(exp < -6) {
+			resunits= "nm"; scaleExp = -9;		
+		}else if(exp < -3) {
 			resunits= "&micro;m"; scaleExp = -6;
 		}else if (exp == -3) {
 			resunits= "mm"; scaleExp = -3;
@@ -29,7 +31,7 @@ L.Control.Scale.include({
 	},
 	
 	_getRoundNum: function (num) {
-		var pow10 = Math.pow(10, Math.floor(Math.log10(num))), //pow10 = Math.pow(10, Math.log10(num)-1),
+		var pow10 = Math.pow(10, Math.floor(Math.log10(num))),
 		    d = num / pow10;
 	
 		d = d >= 10 ? 10 :
