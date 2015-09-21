@@ -8,7 +8,8 @@ L.Control.Ruler = L.Control.extend({
 		    autoClose: false,
 		    autoPan: false, 
 		    className: 'leaflet-control-ruler-popup',
-		    overlapsClass: 'leaflet-control-ruler-overlaps'
+		    overlapsClass: 'leaflet-control-ruler-overlaps',
+		    decimals: 2
 		},
 		
 		editTools: L.Editable,
@@ -23,7 +24,7 @@ L.Control.Ruler = L.Control.extend({
 
         link.href = '#';
         link.title = 'Measure';
-        link.innerHTML = 'space_bar';
+        link.innerHTML = 'straighten';
         L.DomEvent.on(link, 'click', L.DomEvent.stop)
                   .on(link, 'click', this._initRuler, this);
         
@@ -114,16 +115,17 @@ L.Control.Ruler = L.Control.extend({
         if(latlngs.length == 2)
         {
             var distanceMeters = this._map.distance(latlngs[0],latlngs[1]),
-                scaledDistance = 0
+                scaledDistance = {magnitude:distanceMeters, unit:'m'}
                 
             if(typeof L.control.scale().humanReadable === 'function') {
                 scaledDistance = L.control.scale().humanReadable(distanceMeters)
-            } else {
-                scaledDistance = {magnitude:distanceMeters, unit:'m'}
             }
-            
-            //Round to 2 decimals
-            return Math.round(scaledDistance.magnitude*100)/100 + " " + scaledDistance.unit
+
+            var magnitude = scaledDistance.magnitude,
+                unit = scaledDistance.unit
+                
+            //Round our measurement (standard 2 decimals)
+            return L.Util.formatNum(magnitude, this.options.popupOptions.decimals || 2) + " " + unit
         } else {
             //User drawn something strange with >2 points, destroy ruler
             // User can initiate new measurement
