@@ -1,0 +1,18 @@
+/* CSS to handle pointer-events behind our measure popup */
+.control-ruler-popup
+{
+    pointer-events:none;
+}
+
+.control-ruler-popup .leaflet-popup-close-button,
+.control-ruler-popup .leaflet-popup-content-wrapper,
+.control-ruler-popup .leaflet-popup-tip
+{
+    pointer-events:auto;
+}
+
+.control-ruler-popup.control-ruler-overlaps .leaflet-popup-content-wrapper,
+.control-ruler-popup.control-ruler-overlaps .leaflet-popup-tip
+{
+    pointer-events:none;
+}
