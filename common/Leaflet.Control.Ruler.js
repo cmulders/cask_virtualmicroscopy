@@ -18,12 +18,12 @@ L.Control.Ruler = L.Control.extend({
     onAdd: function (map) {
         this._editTools = new this.options.editTools(this._map,this.options.editOptions)
         
-        var container = L.DomUtil.create('div', 'leaflet-control leaflet-bar'),
-            link = L.DomUtil.create('a', '', container);
+        var container = L.DomUtil.create('div', 'leaflet-control-ruler leaflet-control leaflet-bar'),
+            link = L.DomUtil.create('a', 'leaflet-control-ruler-measure material-icons', container);
 
         link.href = '#';
         link.title = 'Measure';
-        link.innerHTML = '<i class="material-icons">space_bar</i>';
+        link.innerHTML = 'space_bar';
         L.DomEvent.on(link, 'click', L.DomEvent.stop)
                   .on(link, 'click', this._initRuler, this);
         
