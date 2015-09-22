@@ -15,3 +15,8 @@ html, body{
 .leaflet-control-minimap{
     box-sizing:content-box;
 }
+
+.material-icons
+{
+    font-size:20px;
+}

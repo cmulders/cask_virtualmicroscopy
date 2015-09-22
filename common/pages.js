@@ -1,7 +1,8 @@
 var pages = [
     {title:"Base Leaflet with corrected scale bar",folder:"Leaflet-slideviewer"},
     {title:"Leaflet with minimap",folder:"Leaflet-minimap"},
-    {title:"Leaflet with minimap and measure",folder:"Leaflet-ruler"}
+    {title:"Leaflet with minimap and measure",folder:"Leaflet-ruler"},
+    {title:"Leaflet with minimap, measure and annotation",folder:"Leaflet-annotate"}
     ]
     
 $(function(){
