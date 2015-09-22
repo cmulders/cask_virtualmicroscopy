@@ -103,7 +103,7 @@ L.Control.Ruler = L.Control.extend({
             L.DomUtil.setOpacity(popupElement, 1);
         } else {
             L.DomUtil.addClass(popupElement, this.options.popupOptions.overlapsClass)
-            L.DomUtil.setOpacity(popupElement, 0.4); 
+            L.DomUtil.setOpacity(popupElement, 0.6); 
         }
         
     },

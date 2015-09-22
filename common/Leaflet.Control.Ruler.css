@@ -19,7 +19,5 @@
 
 .leaflet-control-ruler-popup.leaflet-control-ruler-overlaps .leaflet-popup-content
 {
-    text-shadow: 0 0 2px #000; /* horizontal-offset vertical-offset 'blur' colour */
-    -moz-text-shadow: 0 0 2px #000;
-    -webkit-text-shadow: 0 0 2px #000;
+
 }
