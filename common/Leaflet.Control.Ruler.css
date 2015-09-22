@@ -1,18 +1,25 @@
 /* CSS to handle pointer-events behind our measure popup */
-.control-ruler-popup
+.leaflet-control-ruler-popup
 {
     pointer-events:none;
 }
 
-.control-ruler-popup .leaflet-popup-close-button,
-.control-ruler-popup .leaflet-popup-content-wrapper,
-.control-ruler-popup .leaflet-popup-tip
+.leaflet-control-ruler-popup .leaflet-popup-close-button,
+.leaflet-control-ruler-popup .leaflet-popup-content-wrapper,
+.leaflet-control-ruler-popup .leaflet-popup-tip
 {
     pointer-events:auto;
 }
 
-.control-ruler-popup.control-ruler-overlaps .leaflet-popup-content-wrapper,
-.control-ruler-popup.control-ruler-overlaps .leaflet-popup-tip
+.leaflet-control-ruler-popup.leaflet-control-ruler-overlaps .leaflet-popup-content-wrapper,
+.leaflet-control-ruler-popup.leaflet-control-ruler-overlaps .leaflet-popup-tip
 {
     pointer-events:none;
+}
+
+.leaflet-control-ruler-popup.leaflet-control-ruler-overlaps .leaflet-popup-content
+{
+    text-shadow: 0 0 2px #000; /* horizontal-offset vertical-offset 'blur' colour */
+    -moz-text-shadow: 0 0 2px #000;
+    -webkit-text-shadow: 0 0 2px #000;
 }

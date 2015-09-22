@@ -7,7 +7,7 @@ L.Control.Ruler = L.Control.extend({
 		    closeOnClick: false, 
 		    autoClose: false,
 		    autoPan: false, 
-		    className: 'leaflet-control-ruler-popup',
+		    className: 'leaflet-popup leaflet-control-ruler-popup',
 		    overlapsClass: 'leaflet-control-ruler-overlaps',
 		    decimals: 2
 		},
@@ -48,6 +48,7 @@ L.Control.Ruler = L.Control.extend({
         this._rulerLine.on('editable:drawing:clicked', this._markerAddedHandler, this)
         this._rulerLine.on('editable:vertex:drag', this._drawingMoved, this)
         this._rulerLine.on('popupclose', this._popupClosed, this)
+        this._map.on('moveend', this._updatePopupTransparancy, this)
     },
     
     _markerAddedHandler: function(e) {
@@ -80,6 +81,8 @@ L.Control.Ruler = L.Control.extend({
     },
     
     _updatePopupTransparancy: function () {
+        if(!this._rulerLine.getPopup()) { return; }
+        
         //Calculate popup size for hitbox with any vertices
         var popupElement = this._rulerLine.getPopup().getElement(),
             popupContent = popupElement.getElementsByClassName('leaflet-popup-content-wrapper')[0],
@@ -89,7 +92,7 @@ L.Control.Ruler = L.Control.extend({
             leftTop = L.DomUtil.getPosition(popupElement).add(popupOffset),
             rightBottom = leftTop.add(popupContentSize)
 
-        var bounds = L.latLngBounds(map.layerPointToLatLng(leftTop),map.layerPointToLatLng(rightBottom))
+        var bounds = L.latLngBounds(this._map.layerPointToLatLng(leftTop),this._map.layerPointToLatLng(rightBottom))
         
         var noOverlap = this._rulerLine.getLatLngs().every(function(marker) {
             return !bounds.contains(marker) 
