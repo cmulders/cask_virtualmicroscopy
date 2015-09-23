@@ -126,7 +126,8 @@
 	var miniMap = new L.control.minimap(layerMinimap,{
 		height: minimapSize.height, 
 		width: minimapSize.width, 
-		zoomLevelOffset:-6,
+//		zoomLevelOffset:-6,
+        zoomLevelFixed:0,
 		toggleDisplay: true,
 		autoToggleDisplay: true,
 		shadowRectOptions: {
