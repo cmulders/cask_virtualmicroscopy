@@ -44,8 +44,8 @@
 	<script type="text/javascript" src="../extern/Leaflet.Editable-gh-pages/src/Leaflet.Editable.js"></script>
 
     <!-- L.Control.MiniMap -->
-    <link rel="stylesheet" type="text/css" href="../extern/Leaflet-MiniMap-master/src/Control.MiniMap.css" />
-	<script type="text/javascript" src="../extern/Leaflet-MiniMap-master/src/Control.MiniMap.js"></script>
+    <link rel="stylesheet" type="text/css" href="../common/Leaflet.ThumbnailMap/Leaflet.ThumbnailMap.css" />
+	<script type="text/javascript" src="../common/Leaflet.ThumbnailMap/Leaflet.ThumbnailMap.js"></script>
 	
 
     <!-- L.Control.SlideScale -->
@@ -130,20 +130,11 @@
 		minimapSize.width *= slideRatio;
 	}
 	
-	var miniMap = new L.control.minimap(layerMinimap,{
+    var miniMap = L.control.thumbnailmap(layerMinimap,{
 		height: minimapSize.height, 
 		width: minimapSize.width, 
-		zoomLevelOffset:-6,
 		toggleDisplay: true,
 		autoToggleDisplay: true,
-		shadowRectOptions: {
-			color: "#000000", 
-			weight: 1, 
-			clickable: false, 
-			opacity:0, 
-			fillOpacity:0,
-			renderer: L.svg({padding:0.6})
-		}
 	}).addTo(map);
 
 //Ruler
