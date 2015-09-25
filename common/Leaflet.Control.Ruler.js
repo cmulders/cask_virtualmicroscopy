@@ -1,7 +1,7 @@
-L.Control.Ruler = L.Control.extend({
+L.Handler.Ruler = L.Handler.extend({
     options: {
-		position: 'topleft',
-		rulerStyle: {dashArray: '5,10'}, //For L.PolyLine styles
+        
+        rulerStyle: {dashArray: '5,10'}, //For L.PolyLine styles
 		
 		popupOptions: {
 		    closeOnClick: false, 
@@ -14,44 +14,54 @@ L.Control.Ruler = L.Control.extend({
 		
 		editTools: L.Editable,
 		editOptions: {drawingCSSClass: 'leaflet-control-ruler'}
+		
 	},
-    
-    onAdd: function (map) {
-        this._editTools = new this.options.editTools(this._map,this.options.editOptions)
-        
-        var container = L.DomUtil.create('div', 'leaflet-control-ruler leaflet-control leaflet-bar'),
-            link = L.DomUtil.create('a', 'leaflet-control-ruler-measure material-icons', container);
-
-        link.href = '#';
-        link.title = 'Measure';
-        link.innerHTML = 'straighten';
-        L.DomEvent.on(link, 'click', L.DomEvent.stop)
-                  .on(link, 'click', this._initRuler, this);
-        
-        return container;
-    },
-    
-    _initRuler: function () {
-        //Remove previous ruler if one already existed
-        this._destroyRuler()
+	
+	initialize: function(map, options) {
+	    L.setOptions(this, options);
+	    
+	    L.Handler.prototype.initialize.call(this, map)
+	    
+        //Force disable skipMiddleMarkers
+        var editOptions = L.Util.extend(this.options.editOptions, {skipMiddleMarkers: true})
+	    this._editTools = new this.options.editTools(this._map, editOptions)
+	},
+	
+    addHooks: function() {
         
         //Initiate ruler layer and edit controls
         this._rulerLine = this._editTools.startPolyline();
-        this._rulerLine.editor.tools.options.skipMiddleMarkers = true
         
         //Set the line style
-        this._rulerLine.setStyle(L.extend({dashArray: '5,10', weight: 3},this.options.rulerStyle))
-        
+        this._rulerLine.setStyle(L.Util.extend({dashArray: '5,10', weight: 3}, this.options.rulerStyle))
         
         //Events for adding points, dragging the vertex 
         // and when the popup with the distance is closed
-        this._rulerLine.on('editable:drawing:clicked', this._markerAddedHandler, this)
-        this._rulerLine.on('editable:vertex:drag', this._drawingMoved, this)
-        this._rulerLine.on('popupclose', this._popupClosed, this)
+        this._rulerLine.on('editable:drawing:clicked', this._onMarkerAdded, this)
+        this._rulerLine.on('editable:vertex:drag', this._onDrawingMoved, this)
+        this._rulerLine.on('popupclose', this._onPopupClosed, this)
         this._map.on('moveend', this._updatePopupTransparancy, this)
     },
+
+    removeHooks: function()
+    {   
+        if(this._rulerLine) {
+            //Remove events
+            this._rulerLine.off('editable:drawing:clicked', this._onMarkerAdded, this)
+            this._rulerLine.off('editable:vertex:drag', this._onDrawingMoved, this)    
+            this._rulerLine.off('popupclose', this._onPopupClosed, this)
+            this._map.off('moveend', this._updatePopupTransparancy, this)            
+            
+            if(this._rulerLine.getPopup && this._rulerLine.getPopup())
+            {
+                this._rulerLine.closePopup().unbindPopup()
+            }
+            this._rulerLine.remove()   
+            delete this._rulerLine
+        }
+    },
     
-    _markerAddedHandler: function(e) {
+    _onMarkerAdded: function(e) {
         //When we have two points (= one vertex) stop drawing and show distance
         if(e.layer.getLatLngs().length == 2)
         {
@@ -66,7 +76,7 @@ L.Control.Ruler = L.Control.extend({
         }
     },
     
-    _drawingMoved: function(e) {
+    _onDrawingMoved: function(e) {
         
         if(this._popupAnimId) {
             L.Util.cancelAnimFrame(this._popupAnimId)
@@ -81,19 +91,13 @@ L.Control.Ruler = L.Control.extend({
     },
     
     _updatePopupTransparancy: function () {
-        if(!this._rulerLine.getPopup()) { return; }
+        if(!this._rulerLine || !this._rulerLine.getPopup || !this._rulerLine.getPopup()) { return; }
         
         //Calculate popup size for hitbox with any vertices
         var popupElement = this._rulerLine.getPopup().getElement(),
-            popupContent = popupElement.getElementsByClassName('leaflet-popup-content-wrapper')[0],
-            popupContentSize = L.point(popupContent.offsetWidth,popupContent.offsetHeight)
+            bounds = this._getPopupBounds(popupElement)
         
-        var popupOffset = L.point(parseInt(popupElement.style.left), -parseInt(popupElement.style.bottom)-popupElement.offsetHeight),
-            leftTop = L.DomUtil.getPosition(popupElement).add(popupOffset),
-            rightBottom = leftTop.add(popupContentSize)
-
-        var bounds = L.latLngBounds(this._map.layerPointToLatLng(leftTop),this._map.layerPointToLatLng(rightBottom))
-        
+        //Check every marker of our ruler
         var noOverlap = this._rulerLine.getLatLngs().every(function(marker) {
             return !bounds.contains(marker) 
         })
@@ -108,9 +112,9 @@ L.Control.Ruler = L.Control.extend({
         
     },
     
-    _popupClosed: function (e) {
+    _onPopupClosed: function (e) {
         //Removes ruler, but leave popup untouched, to prevent infinite loop
-        this._destroyRuler()
+        this.disable()
     },
 
     _readableDistance: function(latlngs)
@@ -129,30 +133,60 @@ L.Control.Ruler = L.Control.extend({
                 
             //Round our measurement (standard 2 decimals)
             return L.Util.formatNum(magnitude, this.options.popupOptions.decimals || 2) + " " + unit
-        } else {
-            //User drawn something strange with >2 points, destroy ruler
-            // User can initiate new measurement
-            this._destroyRuler()
         }
     },
     
-    _destroyRuler: function()
-    {   
-        if(this._rulerLine) {
-            //Remove events
-            this._rulerLine.off('editable:drawing:clicked', this._markerAddedHandler, this)
-            this._rulerLine.off('editable:vertex:drag', this._drawingMoved, this)    
-            this._rulerLine.off('popupclose', this._popupClosed, this)
-            
-            if(this._rulerLine.getPopup())
-            {
-                this._rulerLine.closePopup().unbindPopup()
-            }
-            this._rulerLine.remove()   
-            delete this._rulerLine
-        }
+    _getPopupBounds: function (popupElement)
+    {
+        var popupContent = popupElement.getElementsByClassName('leaflet-popup-content-wrapper')[0],
+            popupContentSize = L.point(popupContent.offsetWidth,popupContent.offsetHeight)
+        
+        var popupOffset = L.point(parseInt(popupElement.style.left), -parseInt(popupElement.style.bottom)-popupElement.offsetHeight),
+            leftTop = L.DomUtil.getPosition(popupElement).add(popupOffset),
+            rightBottom = leftTop.add(popupContentSize)
+
+        return L.latLngBounds(this._map.layerPointToLatLng(leftTop),this._map.layerPointToLatLng(rightBottom)) 
     }
 });
+
+
+L.Control.Ruler = L.Control.extend({
+    options: {
+		position: 'topleft',
+
+	},
+    
+    onAdd: function (map) {
+        var container = L.DomUtil.create('div', 'leaflet-control-ruler leaflet-control leaflet-bar'),
+            link = L.DomUtil.create('a', 'leaflet-control-ruler-measure material-icons', container);
+
+        link.href = '#';
+        link.title = 'Measure';
+        link.innerHTML = 'straighten';
+        L.DomEvent.on(link, 'click', L.DomEvent.stop)
+                  .on(link, 'click', this._initRuler, this);
+        
+        this._rulerHandler = new L.Handler.Ruler(map, this.options)
+        
+        return container;
+    },
+    
+    onRemove: function(map)
+    {
+        this._rulerHandler.disable()
+        delete this._rulerHandler;
+    },
+    
+    _initRuler: function() {
+        if(this._rulerHandler.enabled())
+        {
+            this._rulerHandler.disable();
+        }
+        
+        this._rulerHandler.enable();
+    }
+});
+
 
 L.control.ruler = function (options) {
 	return new L.Control.Ruler(options);
