@@ -10,8 +10,6 @@ L.Control.ThumbnailMap = L.Control.extend({
         autoToggleDisplay: false,
         width: 150,
         height: 150,
-        collapsedWidth: 19,
-        collapsedHeight: 19,
         
         aimingRectOptions: {color: "#29ffde", weight: 2, interactive: false},
         
@@ -21,7 +19,9 @@ L.Control.ThumbnailMap = L.Control.extend({
     
     //layer is the map layer to be shown in the minimap
     initialize: function (layer, options) {
+        //First merge our aimingRectOptions
         options.aimingRectOptions = L.extend(this.options.aimingRectOptions, options.aimingRectOptions)
+    
         L.Util.setOptions(this, options);
 
         //Make sure the aiming rects are non-clickable
@@ -34,15 +34,17 @@ L.Control.ThumbnailMap = L.Control.extend({
         this._mainMap = map;
 
         //Creating the container and stopping events from spilling through to the main map.
-        this._container = L.DomUtil.create('div', this.options.baseClassName);
+        this._container = L.DomUtil.create('div', this.options.baseClassName + ' leaflet-bar');
         this._container.style.width = this.options.width + 'px';
         this._container.style.height = this.options.height + 'px';
+        
         L.DomEvent.disableClickPropagation(this._container);
         L.DomEvent.disableScrollPropagation(this._container);
 
         //Create our static map
         this._miniMap = new L.Map(this._container,
         {
+            trackResize: false,
             attributionControl: false,
             zoomControl: false,
             touchZoom: false,
@@ -70,8 +72,8 @@ L.Control.ThumbnailMap = L.Control.extend({
             //Update rectangle
             this._mainMap.on('move', this._onMainMapMoving, this);
             this._mainMap.on('moveend resize', this._onMainMapMoved, this);
-
             this._miniMap.on('dblclick', this._onMiniMapClicked, this)
+            
         }, this));
 
         return this._container;
@@ -86,11 +88,11 @@ L.Control.ThumbnailMap = L.Control.extend({
         } else {
             this._miniMap.fitWorld()
         }
-
-        //Cache bounds
-        this._miniMapBounds = this._miniMap.getBounds()
         
-        this._setDisplay(true);
+        //Update our dimensions and view now we're added to the DOM
+        this._miniMap.invalidateSize()
+        
+        this._setDisplay(this._decideMinimized())
         return this;
     },
 
@@ -98,8 +100,7 @@ L.Control.ThumbnailMap = L.Control.extend({
     
         this._mainMap.off('move', this._onMainMapMoving, this);
         this._mainMap.off('moveend resize', this._onMainMapMoved, this);
-        
-        this._miniMap.off('click', this._onMiniMapClick, this)
+        this._miniMap.off('dblclick', this._onMiniMapClick, this)
 
         this._miniMap.remove()
     },
@@ -112,9 +113,6 @@ L.Control.ThumbnailMap = L.Control.extend({
         ]
         this._toggleDisplayButton = this._createButton(this.options.buttonText, 
             this.options.hideText, buttonClasses.join(' '), this._container, this._toggleDisplayButtonClicked, this);
-        
-        this._toggleDisplayButton.style.width = this.options.collapsedWidth + 1 + 'px';
-        this._toggleDisplayButton.style.height = this.options.collapsedHeight + 1 + 'px';
     },
 
     _createButton: function (html, title, className, container, fn, context) {
@@ -150,14 +148,13 @@ L.Control.ThumbnailMap = L.Control.extend({
                 this._restore();
             }
         }
-        this._miniMap.invalidateSize(false)
     },
 
     _minimize: function () {
         // hide the minimap
         if (this.options.toggleDisplay) {
-            this._container.style.width = this.options.collapsedWidth + 'px';
-            this._container.style.height = this.options.collapsedHeight + 'px';
+            this._container.style.width = this._toggleDisplayButton.offsetWidth + 'px';
+            this._container.style.height = this._toggleDisplayButton.offsetHeight + 'px';
             this._toggleDisplayButton.className += ' minimized-' + this.options.position;
         }
         else {
@@ -187,7 +184,7 @@ L.Control.ThumbnailMap = L.Control.extend({
         }
         
         if (this.options.autoToggleDisplay) {
-            if (this._mainMap.getBounds().contains(this._miniMapBounds)) {
+            if (this._mainMap.getBounds().contains(this._miniMap.getBounds())) {
                 return true;
             }
             return false;
@@ -202,8 +199,9 @@ L.Control.ThumbnailMap = L.Control.extend({
     
     _onMainMapMoved: function (e) {
         this._setDisplay(this._decideMinimized())
-        
-        this._updateRectangle(e)
+        if(!this._minimized) {
+            this._updateRectangle(e)
+        }
     },
     
     _updateRectangle: function (e) {
