@@ -25,6 +25,27 @@ L.Handler.Ruler = L.Handler.extend({
         //Force disable skipMiddleMarkers
         var editOptions = L.Util.extend(this.options.editOptions, {skipMiddleMarkers: true})
 	    this._editTools = new this.options.editTools(this._map, editOptions)
+	    
+	    this._createPopup(this.options.popupOptions)
+	},
+	
+	_createPopup: function(options) {
+	    this._distancePopup = L.popup(options)
+	    
+	    //Content is a function for updating
+	    this._distancePopup.setContent(function(layer) {
+	        var map = layer._map,
+	            latlngs = layer.getLatLngs(),
+	            distance = this._map.distance(latlngs[0],latlngs[1]),
+        	    distanceObj = {magnitude:distance, unit:'m'}
+
+            if(typeof L.Util.humanReadable === 'function') {
+                distanceObj = L.Util.humanReadable(distance)
+            } else {
+                console.warn('L.Util.humanReadable(meters) must be present. Function returns object {magnitude:"scaledDistance", unit:"unit"}')
+            }
+            return L.Util.formatNum(distanceObj.magnitude, this.options.decimals || 2) + " " + distanceObj.unit
+        })
 	},
 	
     addHooks: function() {
@@ -38,7 +59,7 @@ L.Handler.Ruler = L.Handler.extend({
         //Events for adding points, dragging the vertex 
         // and when the popup with the distance is closed
         this._rulerLine.on('editable:drawing:clicked', this._onMarkerAdded, this)
-        this._rulerLine.on('editable:vertex:drag', this._onDrawingMoved, this)
+        this._rulerLine.on('editable:vertex:drag', this._onDrawingMove, this)
         this._rulerLine.on('popupclose', this._onPopupClosed, this)
         this._map.on('moveend', this._updatePopupTransparancy, this)
     },
@@ -48,7 +69,7 @@ L.Handler.Ruler = L.Handler.extend({
         if(this._rulerLine) {
             //Remove events
             this._rulerLine.off('editable:drawing:clicked', this._onMarkerAdded, this)
-            this._rulerLine.off('editable:vertex:drag', this._onDrawingMoved, this)    
+            this._rulerLine.off('editable:vertex:drag', this._onDrawingMove, this)    
             this._rulerLine.off('popupclose', this._onPopupClosed, this)
             this._map.off('moveend', this._updatePopupTransparancy, this)            
             
@@ -68,24 +89,20 @@ L.Handler.Ruler = L.Handler.extend({
             //Stop our drawing
             e.editTools.commitDrawing()
             
-            var popupDistance = this._readableDistance(e.layer.getLatLngs())
-            e.layer.bindPopup(popupDistance, this.options.popupOptions)
-            e.layer.openPopup()
+            //var popupDistance = this._readableDistance(e.layer.getLatLngs())
+            e.layer.bindPopup(this._distancePopup).openPopup()
             
             this._updatePopupTransparancy()
         }
     },
     
-    _onDrawingMoved: function(e) {
+    _onDrawingMove: function(e) {
         
         if(this._popupAnimId) {
             L.Util.cancelAnimFrame(this._popupAnimId)
         }
         this._animId = L.Util.requestAnimFrame(function() {
-            var popup = this._rulerLine.getPopup()
-            popup.setLatLng(this._rulerLine.getCenter())
-            popup.setContent(this._readableDistance(this._rulerLine.getLatLngs()))
-            
+             this._distancePopup.setLatLng(this._rulerLine.getCenter()).update()
             this._updatePopupTransparancy()
         }, this);
     },
@@ -113,27 +130,8 @@ L.Handler.Ruler = L.Handler.extend({
     },
     
     _onPopupClosed: function (e) {
-        //Removes ruler, but leave popup untouched, to prevent infinite loop
+        //Remove/destroy ourselves
         this.disable()
-    },
-
-    _readableDistance: function(latlngs)
-    {
-        if(latlngs.length == 2)
-        {
-            var distanceMeters = this._map.distance(latlngs[0],latlngs[1]),
-                scaledDistance = {magnitude:distanceMeters, unit:'m'}
-                
-            if(typeof L.control.scale().humanReadable === 'function') {
-                scaledDistance = L.control.scale().humanReadable(distanceMeters)
-            }
-
-            var magnitude = scaledDistance.magnitude,
-                unit = scaledDistance.unit
-                
-            //Round our measurement (standard 2 decimals)
-            return L.Util.formatNum(magnitude, this.options.popupOptions.decimals || 2) + " " + unit
-        }
     },
     
     _getPopupBounds: function (popupElement)
