@@ -53,17 +53,14 @@ L.Toolbar = (L.Layer || L.Class).extend({
 		var baseClass = this.constructor.baseClass + '-' + this._calculateDepth(),
 			className = baseClass + ' ' + this.options.className,
 			Action, action,
-			i, j, l, m;
+			i, l;
 
 		this._container = container;
 		this._ul = L.DomUtil.create('ul', className, container);
 
 		/* Ensure that clicks, drags, etc. don't bubble up to the map. */
-		this._disabledEvents = ['click', 'mousemove', 'dblclick'];
-
-		for (j = 0, m = this._disabledEvents.length; j < m; j++) {
-			L.DomEvent.on(this._ul, this._disabledEvents[j], L.DomEvent.stopPropagation);
-		}
+		L.DomEvent.disableScrollPropagation(this._ul);
+		L.DomEvent.disableClickPropagation(this._ul);
 
 		/* Instantiate each toolbar action and add its corresponding toolbar icon. */
 		for (i = 0, l = this.options.actions.length; i < l; i++) {
