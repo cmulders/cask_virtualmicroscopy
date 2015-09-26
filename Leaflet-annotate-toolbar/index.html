@@ -43,20 +43,29 @@
     <!-- L.Editable -->
 	<script type="text/javascript" src="../extern/Leaflet.Editable-gh-pages/src/Leaflet.Editable.js"></script>
 
+	<!-- Leaflet.Util.Extra -->
+	<script type="text/javascript" src="../common/Leaflet.Util.Extra.js"></script>
+
+    <!-- L.Map.UrlView -->
+	<script type="text/javascript" src="../common/Leaflet.Map.UrlView.js"></script>
+
+    <!-- L.Toolbar.Common -->
+	<script type="text/javascript" src="../common/Leaflet.Toolbar.Common.js"></script>
+
     <!-- L.Control.MiniMap -->
     <link rel="stylesheet" type="text/css" href="../common/Leaflet.ThumbnailMap/Leaflet.ThumbnailMap.css" />
 	<script type="text/javascript" src="../common/Leaflet.ThumbnailMap/Leaflet.ThumbnailMap.js"></script>
 	
-
     <!-- L.Control.SlideScale -->
 	<script type="text/javascript" src="../common/Leaflet.Control.SlideScale.js"></script>
 
     <!-- L.Control.Ruler -->
     <link rel="stylesheet" type="text/css" href="../common/Leaflet.Control.Ruler.css" />
 	<script type="text/javascript" src="../common/Leaflet.Control.Ruler.js"></script>
+	<script type="text/javascript" src="../common/Leaflet.Toolbar.Ruler.js"></script>
 
-    <!-- L.Control.AnnotateToolbar -->
-	<script type="text/javascript" src="../common/Leaflet.Control.AnnotateToolbar.js"></script>
+    <!-- L.Toolbar.Annotate -->
+	<script type="text/javascript" src="../common/Leaflet.Toolbar.Annotate.js"></script>
 
     <!-- L.Control.ExportImportToolbar -->
 	<script type="text/javascript" src="../common/Leaflet.Control.ExportImportToolbar.js"></script>
@@ -79,11 +88,10 @@
 <script type="text/javascript">
 
 //Slide parameters
-	var slide = slides[1],
-		minimapSize = {width:300,height:300};
+	var slide = slides[0];
 
 //Custom CRS to translate between pixels and meters.
-    L.CRS.Slide = L.extend(L.CRS.Simple, {
+    L.CRS.Slide = L.extend({}, L.CRS.Simple,{
         transformation: (function(){
             var longestSide = Math.max(slide.width, slide.height);
             var maxZoom = Math.ceil(Math.log(longestSide / 256) / Math.log(2));
@@ -108,9 +116,10 @@
 	//Prevent the map to zoom further than we specify
 	map.setMaxZoom(layerMap.options.maxNativeZoom);
 	
-	//reset the viewport to fit the current slide
-	map.fitBounds(layerMap.options.bounds);
-	
+	if(!map.urlSetView) {
+        //reset the viewport to fit the current slide
+        map.fitBounds(layerMap.options.bounds);
+	}
 	
 //Scalebar
 	L.control.scale({imperial:false}).addTo(map);
@@ -121,12 +130,11 @@
     var layerMinimap = L.tileLayer.zoomify(layerMap._url, layerMap.options)
     
     var slideRatio = slide.width/slide.height,
-        minimapSize = {height:300,width:300};
-	if(slide.width > slide.height)
-	{
+        minimapSize = {height:200,width:200};
+
+	if(slide.width > slide.height) {
 		minimapSize.height /= slideRatio;
-	}else
-	{
+	}else{
 		minimapSize.width *= slideRatio;
 	}
 	
@@ -135,17 +143,70 @@
 		width: minimapSize.width, 
 		toggleDisplay: true,
 		autoToggleDisplay: true,
+		position:'topright',
+		aimingRectOptions: {color: "#29ffde"},
 	}).addTo(map);
 
-//Ruler
-    L.control.ruler().addTo(map);
-
-//Annotate drawing
-    var annotateToolbar = L.annotatetoolbar().addTo(map);
-
-//Import Export features
-    var exportImportToolbar = L.exportimporttoolbar().addTo(map);
+    var featuresLayer = new L.FeatureGroup().addTo(map)
     
+    var optionsFeatureLayer = {editOptions: {featuresLayer: featuresLayer}}
+
+    L.AnnotateToolbar = L.Toolbar.Control.extend({
+        options: {
+            position: 'topleft',
+            actions: [
+                RulerAction,
+                newPolygon,
+            ],
+            className: '' // Style the toolbar with Leaflet.draw's custom CSS
+        }
+    });
+    var exportImportToolbar = new L.AnnotateToolbar().addTo(map, L.extend({},optionsFeatureLayer));
+    
+    featuresLayer.on('layeradd', function(event) {
+        event.layer.on('mouseover', function (e) {
+            e.target.setStyle({fillOpacity:L.Path.prototype.options.fillOpacity+0.2})
+        });
+        
+        event.layer.on('mouseout', function (e) {
+            e.target.setStyle({fillOpacity:L.Path.prototype.options.fillOpacity})
+        });
+        
+        event.layer.on('click', function(e) {
+            if(e.target.editor && e.target.editor.tools.drawing()) {
+                return;
+            }
+            
+            var popup = new L.Popup.EditAnnotation(e.latlng, {
+                actions:[
+                    DoneEdit, 
+                    EditFeature, 
+                    DeleteFeature,
+                    FeatureToFront,
+                    FeatureToBack
+                    ]
+            })
+
+            popup.addTo(e.target._map, {feature: e.target})
+            
+            e.target._map.once('preclick', L.Util.bind(popup.remove, popup))
+            
+            L.DomEvent.stopPropagation(e);
+        });
+    })
+   /*
+    map.on('draw:created', function(evt) {
+			var	type = evt.layerType,
+				layer = evt.layer;
+			drawnItems.addLayer(layer);
+			layer.on('click', function(event) {
+				new L.EditToolbar.Popup(event.latlng, {
+					className: 'leaflet-draw-toolbar',
+					actions: editActions
+				}).addTo(map, layer);
+			});
+		});
+		*/
 </script>
 
 </body>
