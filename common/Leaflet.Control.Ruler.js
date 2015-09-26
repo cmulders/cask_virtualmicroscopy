@@ -1,4 +1,6 @@
 L.Handler.Ruler = L.Handler.extend({
+    includes: L.Mixin.Events,
+    
     options: {
         
         rulerStyle: {dashArray: '5,10'}, //For L.PolyLine styles
@@ -18,12 +20,12 @@ L.Handler.Ruler = L.Handler.extend({
 	},
 	
 	initialize: function(map, options) {
-	    L.setOptions(this, options);
+	    L.setOptions(this, L.Util.create(options));
 	    
 	    L.Handler.prototype.initialize.call(this, map)
 	    
         //Force disable skipMiddleMarkers
-        var editOptions = L.Util.extend(this.options.editOptions, {skipMiddleMarkers: true})
+        var editOptions = L.Util.extend({}, this.options.editOptions, {skipMiddleMarkers: true})
 	    this._editTools = new this.options.editTools(this._map, editOptions)
 	    
 	    this._createPopup(this.options.popupOptions)
@@ -53,6 +55,8 @@ L.Handler.Ruler = L.Handler.extend({
         //Initiate ruler layer and edit controls
         this._rulerLine = this._editTools.startPolyline();
         
+        this.fire('ruler:created');
+        
         //Set the line style
         this._rulerLine.setStyle(L.Util.extend({dashArray: '5,10', weight: 3}, this.options.rulerStyle))
         
@@ -64,8 +68,7 @@ L.Handler.Ruler = L.Handler.extend({
         this._map.on('moveend', this._updatePopupTransparancy, this)
     },
 
-    removeHooks: function()
-    {   
+    removeHooks: function() {   
         if(this._rulerLine) {
             //Remove events
             this._rulerLine.off('editable:drawing:clicked', this._onMarkerAdded, this)
@@ -79,6 +82,8 @@ L.Handler.Ruler = L.Handler.extend({
             }
             this._rulerLine.remove()   
             delete this._rulerLine
+            
+            this.fire('ruler:deleted');
         }
     },
     
