@@ -1,34 +1,28 @@
-var newPolygon = L.ToolbarAction.extend({
+var newFeature = L.ToolbarAction.extend({
     options: {
-        toolbarIcon: {
-            html: '<i class="material-icons">mode_edit</i>',
-            tooltip: 'Annotate a structure',
-            className: ''
-        },
         editTools: L.Editable,
-        editOptions: {drawingCSSClass: 'leaflet-control-annotate'},
-    
-        subToolbar: new (L.Toolbar.extend({}))({
-            actions: [DoneAction, CancelAction]
-        })
     },
     
     initialize: function(map, options) {
+		var defaulteditOptions = this.options.editOptions;
+
         L.ToolbarAction.prototype.initialize.call(this, options);
+        
+		this.options.editOptions = L.extend({}, defaulteditOptions, this.options.editOptions);
+
         this._map = map;
         this._editTools = new this.options.editTools(this._map, this.options.editOptions)
         
+        this._editTools.on('editable:drawing:start', this._onDrawingStart, this)
         this._editTools.on('editable:drawing:cancel', this._onDrawingCancel, this)
-        this._editTools.on('editable:drawing:commit', this._onDrawingCommit, this)
+        this._editTools.on('editable:drawing:end', this._onDrawingEnd, this)
     },
         
-    addHooks: function () {
-        this._editTools.startPolygon()
-    },
-    
     removeHooks: function() {
-        if(this._editTools.drawing()) {
-            this._editTools.stopDrawing()
+        this._editTools.stopDrawing()
+        
+        if(this._currentFeature) {
+            this._currentFeature.editor.disable();
         }
     },
     
@@ -40,20 +34,84 @@ var newPolygon = L.ToolbarAction.extend({
     cancelAction: function() {
         this.disable();
     },
+
+    _onDrawingStart: function(e) {
+        this._currentFeature = e.layer
+    },
     
     _onDrawingCancel: function(e) {
-        
+        e.layer.remove()
     },
     
-    _onDrawingCommit: function(e) {
-        e.layer.editor.disable();
+    _onDrawingEnd: function(e) {
+        this.disable()
+    }    
+});
+
+var newPolygon = newFeature.extend({
+    options: {
+        toolbarIcon: {
+            html: '<i class="material-icons">mode_edit</i>',
+            tooltip: 'Annotate a structure',
+            className: ''
+        },
+    
+        subToolbar: new (L.Toolbar.extend({}))({
+            actions: [DoneAction, CancelAction]
+        })
+    },
+
+    addHooks: function () {
+        this._editTools.startPolygon()
+    }
+});
+
+var newLabel = newFeature.extend({
+    options: {
+        toolbarIcon: {
+            html: '<i class="material-icons">place</i>',
+            tooltip: 'Annotate a structure',
+            className: ''
+        },
+
+        editOptions: {
+            markerClass: L.Marker.Label
+        },
+    
+        subToolbar: new (L.Toolbar.extend({}))({
+            actions: [CancelAction]
+        })
+    },
+        
+    addHooks: function () {
+        this._editTools.startMarker()
+    }   
+});
+
+var DoneAllEdit = L.ToolbarAction.extend({
+    options: {
+        toolbarIcon: {
+            html: '<i class="material-icons">done_all</i>',
+            tooltip: 'Done all',
+        },
+    
+    },
+    
+    initialize: function(map, options) {
+        L.ToolbarAction.prototype.initialize.call(this, options);
+    },
+    
+    addHooks: function (map) {
+        var layers = this.options.editOptions.featuresLayer.getLayers();
+        layers.forEach(function(layer) {
+            layer.disableEdit()
+        })
+        
         this.disable()
     },
-    
 });
 
 var SimpleFeatureAction = L.ToolbarAction.extend({
-    
     initialize: function(map, options) {
         L.ToolbarAction.prototype.initialize.call(this, options);
         this._map = map;
@@ -83,7 +141,7 @@ var EditFeature = SimpleFeatureAction.extend({
     options: {
         toolbarIcon: {
             html: '<i class="material-icons">mode_edit</i>',
-            tooltip: 'Edit a annotate',
+            tooltip: 'Edit annotation',
         },
     
     },
@@ -98,7 +156,7 @@ var DeleteFeature = SimpleFeatureAction.extend({
     options: {
         toolbarIcon: {
             html: '<i class="material-icons">delete</i>',
-            tooltip: 'Delete a annotation',
+            tooltip: 'Delete annotation',
         },
     
     },
@@ -139,4 +197,47 @@ var FeatureToBack = SimpleFeatureAction.extend({
     },
 });
 
-L.Popup.EditAnnotation = L.Toolbar.Popup.extend({})
+var MoveLabel = SimpleFeatureAction.extend({
+    options: {
+        toolbarIcon: {
+            html: '<i class="material-icons">open_with</i>',
+            tooltip: 'Move label',
+        },
+    
+    },
+    
+    addHooks: function () {
+        this._feature.enableEdit()
+        this.disable()
+    },
+});
+
+var EditLabel = SimpleFeatureAction.extend({
+    options: {
+        toolbarIcon: {
+            html: '<i class="material-icons">text_format</i>',
+            tooltip: 'Edit text',
+        },
+    
+    },
+    
+    addHooks: function () {
+        this._feature.bindPopup(L.Util.bind(this._popupContent,this)).openPopup()
+        this._feature.once('popupclose', this._feature.unbindPopup)
+        this.disable()
+    },
+    
+    _popupContent: function(feature) {
+        var currentLabel = feature.getElement().innerHTML;
+        
+        var input = L.DomUtil.create('input', 'leaflet-label-input', false)
+
+        input.setAttribute('value', currentLabel)
+
+        L.DomEvent.on(input, 'keyup', L.bind(function(e) { 
+            this.setContent(e.target.value)
+        }, this._feature));
+        
+        return input; //'<input value="' +  + '" type="text" style="height: 20px; line-height: 20px; border:none; padding:none; margin:none;  outline: none; border-bottom:black dashed 1px; display: inline-block;"><i class="material-icons">done</i>';
+    }
+});

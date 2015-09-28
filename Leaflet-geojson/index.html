@@ -40,6 +40,9 @@
 	<!-- L.TileLayer.Zoomify -->
 	<script type="text/javascript" src="../extern/Leaflet.Zoomify-cba7bf6/L.TileLayer.Zoomify.js"></script>
 
+    <!-- L.Editable -->
+	<script type="text/javascript" src="../extern/Leaflet.Editable-gh-pages/src/Leaflet.Editable.js"></script>
+
 	<!-- Leaflet.Util.Extra -->
 	<script type="text/javascript" src="../common/Leaflet.Util.Extra.js"></script>
 
@@ -51,9 +54,6 @@
 
     <!-- L.Marker.Label -->
 	<script type="text/javascript" src="../common/Leaflet.Marker.Label.js"></script>
-
-    <!-- L.Editable -->
-	<script type="text/javascript" src="../extern/Leaflet.Editable-gh-pages/src/Leaflet.Editable.js"></script>
 
     <!-- L.Toolbar.Common -->
 	<script type="text/javascript" src="../common/Leaflet.Toolbar.Common.js"></script>
@@ -153,6 +153,7 @@
 		aimingRectOptions: {color: "#29ffde"},
 	}).addTo(map);
 
+//Annotation UI (buttons/popup on shape)
     var featuresLayer = new L.FeatureGroup().addTo(map)
     
     var optionsFeatureLayer = {editOptions: {featuresLayer: featuresLayer}}
@@ -163,55 +164,32 @@
             actions: [
                 RulerAction,
                 newPolygon,
-                newLabel,
-                DoneAllEdit,
             ],
             className: '' // Style the toolbar with Leaflet.draw's custom CSS
         }
     });
-    var annotateToolbar = new L.AnnotateToolbar().addTo(map, L.extend({},optionsFeatureLayer));
+    var exportImportToolbar = new L.AnnotateToolbar().addTo(map, L.extend({},optionsFeatureLayer));
     
     featuresLayer.on('layeradd', function(event) {
-        event.layer.once('remove', function(e) {
-            featuresLayer.removeLayer(e.target)
-        })
-        
-        if(event.layer instanceof L.Marker.Label) {
-            event.layer.on('contextmenu', function(e) {
-                if(e.target.editor && e.target.editor.tools.drawing()) {
-                    return;
-                }
-                var editLabelPopup = new L.Toolbar.Popup(e.latlng, {
-                    actions:[
-                        EditLabel,
-                        (e.target.editEnabled() ? DoneEdit : MoveLabel), 
-                        DeleteFeature,
-                        ]
-                })
-
-                editLabelPopup.addTo(e.target._map, {feature: e.target})
-            
-                e.target._map.once('preclick', L.Util.bind(editLabelPopup.remove, editLabelPopup))
-            
-                L.DomEvent.stopPropagation(e);                
-            })
-            return
-        }
-        
         event.layer.on('mouseover', function (e) {
+            if(!e.target.setStyle) { return; }
             e.target.setStyle({fillOpacity:L.Path.prototype.options.fillOpacity+0.2})
         });
         
         event.layer.on('mouseout', function (e) {
+            if(!e.target.setStyle) { return; }
             e.target.setStyle({fillOpacity:L.Path.prototype.options.fillOpacity})
         });
         
         event.layer.on('contextmenu', function(e) {
             if(e.target.editor && e.target.editor.tools.drawing()) {
+                L.DomEvent.stopPropagation(e);
                 return;
             }
-            
-            var editFeaturePopup = new L.Toolbar.Popup(e.latlng, {
+
+            if(!(e.target instanceof L.Path)) { return; }
+
+            var popup = new L.Popup.EditAnnotation(e.latlng, {
                 actions:[
                     (e.target.editEnabled() ? DoneEdit : EditFeature), 
                     DeleteFeature,
@@ -220,26 +198,20 @@
                     ]
             })
 
-            editFeaturePopup.addTo(e.target._map, {feature: e.target})
+            popup.addTo(e.target._map, {feature: e.target})
             
-            e.target._map.once('preclick', L.Util.bind(editFeaturePopup.remove, editFeaturePopup))
+            e.target._map.once('preclick', L.Util.bind(popup.remove, popup))
             
             L.DomEvent.stopPropagation(e);
         });
+        
+        event.layer.on('remove', function(e) {
+            this.off();
+        });
     })
     
-    L.ExportImportToolbar = L.Toolbar.Control.extend({
-        options: {
-            position: 'topleft',
-            actions: [
-                RulerAction,
-                newPolygon,
-            ],
-            className: '' // Style the toolbar with Leaflet.draw's custom CSS
-        }
-    });
-//    var exportImportToolbar = new L.ExportImportToolbar().addTo(map, {featureLayer:featuresLayer});    
-
+    var label = L.marker.label(L.latLng(-0.00650136,0.010186779)).addTo(featuresLayer).setContent('test');
+    
 </script>
 
 </body>
