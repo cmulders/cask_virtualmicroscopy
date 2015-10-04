@@ -69,10 +69,6 @@ var newLabel = newFeature.extend({
             tooltip: 'Annotate a structure',
             className: ''
         },
-
-        editOptions: {
-            markerClass: L.Marker.Label
-        },
     
         subToolbar: new (L.Toolbar.extend({}))({
             actions: [CancelAction]

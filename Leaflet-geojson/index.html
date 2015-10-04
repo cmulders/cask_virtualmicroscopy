@@ -172,7 +172,7 @@
     featuresLayer.addTo(map)
 	
 //Setup edititing
-    var editor = new L.Editable(map,{featuresLayer: featuresLayer})
+    var editor = new L.Editable(map,{featuresLayer: featuresLayer, markerClass: L.Marker.Label})
     L.setOptions(featuresLayer, {editOptions: {editTools: editor}})
     
     L.AnnotateToolbar = L.Toolbar.Control.extend({
