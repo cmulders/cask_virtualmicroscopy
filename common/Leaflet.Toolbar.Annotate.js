@@ -91,10 +91,11 @@ var DoneAllEdit = L.ToolbarAction.extend({
     
     initialize: function(map, options) {
         L.ToolbarAction.prototype.initialize.call(this, options);
+        this._featureLayer = this.options.editTools.featuresLayer;
     },
     
     addHooks: function (map) {
-        var layers = this.options.editOptions.featuresLayer.getLayers();
+        var layers = this._featureLayer.getLayers();
         layers.forEach(function(layer) {
             layer.disableEdit()
         })
