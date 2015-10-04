@@ -4,14 +4,10 @@ var newFeature = L.ToolbarAction.extend({
     },
     
     initialize: function(map, options) {
-		var defaulteditOptions = this.options.editOptions;
-
         L.ToolbarAction.prototype.initialize.call(this, options);
-        
-		this.options.editOptions = L.extend({}, defaulteditOptions, this.options.editOptions);
 
         this._map = map;
-        this._editTools = new this.options.editTools(this._map, this.options.editOptions)
+        this._editTools = this.options.editTools
         
         this._editTools.on('editable:drawing:start', this._onDrawingStart, this)
         this._editTools.on('editable:drawing:cancel', this._onDrawingCancel, this)

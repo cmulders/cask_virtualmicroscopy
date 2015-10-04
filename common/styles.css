@@ -21,6 +21,7 @@ html, body{
     font-size:20px;
 }
 
+/* toolbar styles */
 ul.leaflet-control-toolbar
 {
     margin-bottom: 0;
@@ -46,6 +47,7 @@ ul.leaflet-control-toolbar
     border-bottom-right-radius: 4px;
 }
 
+/* Label text markup */
 .leaflet-div-label {
     color: white;
     text-shadow: -1px 0 1px black, 0 1px 1px black, 1px 0 1px black, 0 -1px 1px black;
@@ -55,4 +57,22 @@ ul.leaflet-control-toolbar
 .leaflet-div-label.leaflet-marker-draggable {
     color: #1E90FF;
     text-shadow: 0 0 4px black;
+}
+
+.leaflet-control-toolbar .leaflet-toolbar-1 > li > .leaflet-toolbar-icon.action-text-field {
+    padding-top: 1px;
+    padding-bottom: 1px;
+}  
+.leaflet-control-toolbar .leaflet-toolbar-1 > li > .leaflet-toolbar-icon input[type="text"] {
+    height: 24px;
+    vertical-align: text-bottom;
+    border: none;
+    color: black;
+    line-height: 24px;
+}
+
+.leaflet-label-input {
+    font-size: 16px;
+    line-height: 24px;
+    height: 24px;
 }

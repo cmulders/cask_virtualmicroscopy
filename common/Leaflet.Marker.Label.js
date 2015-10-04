@@ -13,7 +13,9 @@ L.Marker.Label = L.Marker.extend({
     
     setContent: function(content) {
         this._content = content;
-		this.update();
+        
+        if(this._map)
+    		this.update();
 		
 		return this;
     },

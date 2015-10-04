@@ -14,7 +14,6 @@ L.Handler.Ruler = L.Handler.extend({
 		    decimals: 2
 		},
 		
-		editTools: L.Editable,
 		editOptions: {drawingCSSClass: 'leaflet-control-ruler'}
 		
 	},
@@ -26,7 +25,7 @@ L.Handler.Ruler = L.Handler.extend({
 	    
         //Force disable skipMiddleMarkers
         var editOptions = L.Util.extend({}, this.options.editOptions, {skipMiddleMarkers: true})
-	    this._editTools = new this.options.editTools(this._map, editOptions)
+	    this._editTools = new L.Editable(this._map, editOptions)
 	    
 	    this._createPopup(this.options.popupOptions)
 	},
