@@ -215,22 +215,7 @@ var EditLabel = SimpleFeatureAction.extend({
     },
     
     addHooks: function () {
-        this._feature.bindPopup(L.Util.bind(this._popupContent,this)).openPopup()
-        this._feature.once('popupclose', this._feature.unbindPopup)
+        this._feature.showLabelEditor(true);
         this.disable()
-    },
-    
-    _popupContent: function(feature) {
-        var currentLabel = feature.getElement().innerHTML;
-        
-        var input = L.DomUtil.create('input', 'leaflet-label-input', false)
-
-        input.setAttribute('value', currentLabel)
-
-        L.DomEvent.on(input, 'keyup', L.bind(function(e) { 
-            this.setContent(e.target.value)
-        }, this._feature));
-        
-        return input; //'<input value="' +  + '" type="text" style="height: 20px; line-height: 20px; border:none; padding:none; margin:none;  outline: none; border-bottom:black dashed 1px; display: inline-block;"><i class="material-icons">done</i>';
     }
 });

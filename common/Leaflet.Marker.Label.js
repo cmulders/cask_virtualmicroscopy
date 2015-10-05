@@ -65,6 +65,28 @@ L.Marker.Label = L.Marker.extend({
         icon.style.marginLeft = (-halfSize.x) + "px"
         icon.style.marginTop  = (-halfSize.y) + "px"
         
+    },
+    
+    showLabelEditor: function(autoOpen) {
+        this.bindPopup(L.Util.bind(this._popupContent,this))
+		if(autoOpen) {
+		    this.openPopup()
+		}
+        this.once('popupclose', this.unbindPopup)
+    },
+    
+    _popupContent: function() {
+        var currentLabel = this.getElement().innerHTML;
+        
+        var input = L.DomUtil.create('input', 'leaflet-label-input', false)
+
+        input.setAttribute('value', currentLabel)
+
+        L.DomEvent.on(input, 'keyup', L.bind(function(e) { 
+            this.setContent(e.target.value)
+        }, this));
+        
+        return input;
     }
 })
 

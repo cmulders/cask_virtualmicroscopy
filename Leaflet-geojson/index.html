@@ -189,6 +189,13 @@
     });
     var annotateToolbar = new L.AnnotateToolbar().addTo(map, L.extend({},{editTools: editor}));
 
+    //Show our label editor once we are positioned (commit)
+    map.on('editable:drawing:commit', function(e) {
+        if(e.layer instanceof L.Marker.Label) {
+            e.layer.showLabelEditor()
+        }
+    })
+
     //Editing event handling (context menu)
     featuresLayer.on('layeradd', function(event) {
         event.layer.once('remove', function(e) {
