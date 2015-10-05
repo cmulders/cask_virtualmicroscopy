@@ -6,6 +6,8 @@ var pages = [
     {title:"Leaflet with view updated in url",folder:"Leaflet-url-view"},
     {title:"Leaflet with minimap, measure and annotation (Using Leaflet.Toolbar)",folder:"Leaflet-annotate-toolbar"},
 */  {title:"Leaflet with geojson properties support, export/import",folder:"Leaflet-geojson"},
+    {title:"Leaflet: Annotated Zebrafish",folder:"Leaflet-annotated_zf"},
+
     ]
     
 $(function(){
