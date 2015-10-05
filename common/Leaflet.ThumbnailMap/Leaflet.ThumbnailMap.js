@@ -38,7 +38,6 @@ L.Control.ThumbnailMap = L.Control.extend({
         this._container.style.width = this.options.width + 'px';
         this._container.style.height = this.options.height + 'px';
         
-        L.DomEvent.disableClickPropagation(this._container);
         L.DomEvent.disableScrollPropagation(this._container);
 
         //Create our static map
@@ -72,7 +71,9 @@ L.Control.ThumbnailMap = L.Control.extend({
             //Update rectangle
             this._mainMap.on('move', this._onMainMapMoving, this);
             this._mainMap.on('moveend resize', this._onMainMapMoved, this);
-            this._miniMap.on('dblclick', this._onMiniMapClicked, this)
+
+            this._miniMap.on('click', this._onMiniMapClicked, this);
+            L.DomEvent.disableClickPropagation(this._container);
             
         }, this));
 
@@ -100,7 +101,7 @@ L.Control.ThumbnailMap = L.Control.extend({
     
         this._mainMap.off('move', this._onMainMapMoving, this);
         this._mainMap.off('moveend resize', this._onMainMapMoved, this);
-        this._miniMap.off('dblclick', this._onMiniMapClick, this)
+        this._miniMap.off('click', this._onMiniMapClick, this)
 
         this._miniMap.remove()
     },
