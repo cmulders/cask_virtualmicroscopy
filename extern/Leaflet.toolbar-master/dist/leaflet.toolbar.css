@@ -5,9 +5,11 @@
   padding-left: 0;
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
 }
+
 .leaflet-toolbar-0 > li {
   position: relative;
 }
+
 .leaflet-toolbar-0 > li > .leaflet-toolbar-icon {
   display: block;
   width: 26px;
@@ -20,9 +22,17 @@
   text-decoration: none;
   background-color: #ffffff;
 }
+
 .leaflet-toolbar-0 > li > .leaflet-toolbar-icon:hover {
   background-color: #f4f4f4;
 }
+
+.leaflet-touch .leaflet-toolbar-0 > li > .leaflet-toolbar-icon {
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+}
+
 .leaflet-toolbar-0 .leaflet-toolbar-1 {
   display: none;
   list-style: none;
@@ -47,6 +57,12 @@
 .leaflet-control-toolbar {
   /* Secondary Toolbar */
 }
+
+.leaflet-touch .leaflet-control-toolbar.leaflet-toolbar-0 {
+    box-shadow: none;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+}
+
 .leaflet-control-toolbar > li > .leaflet-toolbar-icon {
   border-bottom: 1px solid #ccc;
 }
@@ -69,9 +85,17 @@
   white-space: nowrap;
   height: 26px;
 }
+
+.leaflet-touch .leaflet-control-toolbar .leaflet-toolbar-1 {
+    left: 30px;
+    height: 30px;
+}
+
 .leaflet-control-toolbar .leaflet-toolbar-1 > li {
   display: inline-block;
+  vertical-align:top;
 }
+
 .leaflet-control-toolbar .leaflet-toolbar-1 > li > .leaflet-toolbar-icon {
   display: block;
   background-color: #919187;
@@ -84,6 +108,12 @@
   padding-right: 10px;
   height: 26px;
 }
+
+.leaflet-touch .leaflet-control-toolbar .leaflet-toolbar-1 > li > .leaflet-toolbar-icon {
+    height: 30px;
+    line-height:30px;
+}
+
 .leaflet-control-toolbar .leaflet-toolbar-1 > li > .leaflet-toolbar-icon:hover {
   background-color: #a0a098;
 }
