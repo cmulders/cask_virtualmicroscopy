@@ -101,7 +101,6 @@ L.Handler.Ruler = L.Handler.extend({
     },
     
     _onDrawingMove: function(e) {
-        
         if(this._popupAnimId) {
             L.Util.cancelAnimFrame(this._popupAnimId)
         }
@@ -109,6 +108,8 @@ L.Handler.Ruler = L.Handler.extend({
              this._distancePopup.setLatLng(this._rulerLine.getCenter()).update()
             this._updatePopupTransparancy()
         }, this);
+        
+        this.fire('ruler:moved');
     },
     
     _updatePopupTransparancy: function () {
