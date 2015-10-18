@@ -9,8 +9,7 @@ L.Map.UrlView = L.Handler.extend({
 	        this._map.setView(L.latLng(urlViewParams.lat, urlViewParams.lng),urlViewParams.zoom)
 	        this._map.urlSetView = true;
 	    }
-	    
-	
+
 		L.DomEvent.on(this._map, 'moveend', this._onMapMoved, this);
 	},
 
@@ -39,7 +38,7 @@ L.Map.UrlView = L.Handler.extend({
 
 if(window.history && L.Util.parseParamString) {
     L.Map.mergeOptions({
-        urlView: true,
+        urlView: false,
         urlSetView: false
     });
     
