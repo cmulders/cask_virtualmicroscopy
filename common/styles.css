@@ -60,20 +60,18 @@ ul.leaflet-control-toolbar
     text-shadow: 0 0 4px black;
 }
 
-.leaflet-control-toolbar .leaflet-toolbar-1 > li > .leaflet-toolbar-icon.action-text-field {
-    padding-top: 1px;
-    padding-bottom: 1px;
-}  
-.leaflet-control-toolbar .leaflet-toolbar-1 > li > .leaflet-toolbar-icon input[type="text"] {
-    height: 24px;
-    vertical-align: text-bottom;
-    border: none;
-    color: black;
-    line-height: 24px;
-}
-
 .leaflet-label-input {
     font-size: 16px;
-    line-height: 24px;
     height: 24px;
+    color: black;
+    margin-top: 1px;
+    margin-bottom: 1px;
+}
+
+.action-text-field .leaflet-label-input {
+    border:none;
+}
+
+.leaflet-touch .leaflet-label-input {
+    height: 28px;
 }
