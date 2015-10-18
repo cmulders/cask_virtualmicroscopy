@@ -9,7 +9,7 @@ L.Control.Scale.include({
     },
 
     _getRoundNum: function (num) {
-        var pow10 = Math.pow(10, Math.floor(Math.log10(num))),
+        var pow10 = Math.pow(10, Math.floor(Math.log(num) / Math.LN10)),
             d = num / pow10;
 
         d = d >= 10 ? 10 :
@@ -20,8 +20,3 @@ L.Control.Scale.include({
         return pow10 * d;
     }
 })
-
-//Polyfill Math.log10
-Math.log10 = Math.log10 || function(x) {
-  return Math.log(x) / Math.LN10;
-};

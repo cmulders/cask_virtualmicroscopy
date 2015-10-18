@@ -3,7 +3,7 @@
  */
 
 L.Util.humanReadable = function(meters) {
-    var exp = Math.floor(Math.log10(meters)),
+    var exp = Math.floor(Math.log(meters) / Math.LN10),
         resunits = '', scaleExp = 0
 
     if(exp < -6) {
