@@ -8,9 +8,7 @@
 }
 
 .leaflet-control-thumbnailmap {
-    border:solid rgba(255, 255, 255, 1.0) 0px;
-    box-shadow: 0 1px 5px rgba(0,0,0,0.65);
-    border-radius: 3px;
+    border:solid rgba(255, 255, 255, 1.0) 1px;
     background: #f8f8f9;
     transition: all .2s;
 }
@@ -19,53 +17,39 @@
     background-color: #F5F5F5;
 }
 
-.leaflet-control-thumbnailmap a {
-    background-color: rgba(255, 255, 255, 1.0);
-    background-repeat: no-repeat;
+.leaflet-control-thumbnailmap-toggle {
     z-index: 99999;
-    transition: all .2s;	
-    text-decoration:none;
-    color: #000;
-}
-
-
-/* Top-left */
-.leaflet-top.leaflet-left .leaflet-control-thumbnailmap a.minimized {
-    -webkit-transform: rotate(90deg);
-    transform: rotate(90deg);
-    border-radius: 0px;
-}
-/* Bottom-left */
-.leaflet-bottom.leaflet-left .leaflet-control-thumbnailmap a.minimized {
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-    border-radius: 0px;
-}
-
-/* Bottom-right */
-.leaflet-bottom.leaflet-right .leaflet-control-thumbnailmap a.minimized {
-    -webkit-transform: rotate(270deg);
-    transform: rotate(270deg);
-    border-radius: 0px;
-}
-
-/* Top-right */
-.leaflet-top.leaflet-right .leaflet-control-thumbnailmap a.minimized {
-    -webkit-transform: rotate(180deg);
-    transform: rotate(180deg);
-    border-radius: 0px;
-}
-
-.leaflet-control-thumbnailmap-toggle{
-
+    transition: transform .2s;
 	background-size: cover;
     position: absolute;
     border-radius: 3px 0px 0px 0px;
 }
 
-.leaflet-bottom.leaflet-right .leaflet-control-thumbnailmap-toggle {
-    bottom: 0;
-    right: 0; 
+a.leaflet-control-thumbnailmap-toggle.minimized {
+   border-radius: 0px;
+}
+
+/* Top-left */
+.leaflet-top.leaflet-left .leaflet-control-thumbnailmap-toggle.minimized {
+    -webkit-transform: rotate(90deg);
+    transform: rotate(90deg);
+}
+/* Bottom-left */
+.leaflet-bottom.leaflet-left .leaflet-control-thumbnailmap-toggle.minimized {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+}
+
+/* Bottom-right */
+.leaflet-bottom.leaflet-right .leaflet-control-thumbnailmap-toggle.minimized {
+    -webkit-transform: rotate(270deg);
+    transform: rotate(270deg);
+}
+
+/* Top-right */
+.leaflet-top.leaflet-right .leaflet-control-thumbnailmap-toggle.minimized {
+    -webkit-transform: rotate(180deg);
+    transform: rotate(180deg);
 }
 
 .leaflet-top.leaflet-left .leaflet-control-thumbnailmap-toggle{
