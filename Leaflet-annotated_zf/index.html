@@ -70,6 +70,10 @@
 	<script type="text/javascript" src="../common/Leaflet.Control.Ruler.js"></script>
 	<script type="text/javascript" src="../common/Leaflet.Toolbar.Ruler.js"></script>
 
+    <!-- L.Control.Legend -->
+    <link rel="stylesheet" type="text/css" href="../common/Leaflet.Legend/Leaflet.Control.Legend.css" />
+	<script type="text/javascript" src="../common/Leaflet.Legend/Leaflet.Control.Legend.js"></script>
+
     <!-- L.Toolbar.Annotate -->
 	<script type="text/javascript" src="../common/Leaflet.Toolbar.Annotate.js"></script>
 
@@ -164,21 +168,38 @@
     });
     var annotateToolbar = new L.AnnotateToolbar().addTo(map);
 
-    var annotations = L.featureGroup().addTo(map)
-    for( var type in ZFannotations ){
-        var geoJson = JSON.parse(ZFannotations[type])
-        var newLayer = L.GeoJSON.geometryToLayer(geoJson, {weight:1,opacity:0.3})
-        
-        if(geoJson.type == 'Feature' && geoJson.properties.style){
-            newLayer.setStyle(geoJson.properties.style)
+    var annotationsOptions = {
+        weight:1, 
+        opacity:0.3, 
+        style: function(feature) {
+            return feature.properties && feature.properties.style || {};
         }
-        
-        annotations.addLayer(newLayer)
     }
     
-    annotations.on('mouseover mouseout',function(e) {
-        e.layer.setStyle({fillOpacity: e.type == 'mouseover' ? 0.6 : 0.3})
-    });
+    var annotations = L.geoJson(false,annotationsOptions).addTo(map)
+    
+    for( var type in ZFannotations ){
+        annotations.addData(JSON.parse(ZFannotations[type]))
+    }
+    
+    var overlayLegend = L.control.overlaylegend(annotations).addTo(map);
+    
+    annotations.on('mouseover mouseout click preclick',function(e) {
+        switch(e.type) {
+            case 'mouseout':
+            case 'preclick':
+                this.setStyle({fillOpacity: 0.3})
+                overlayLegend.getOverlayItems().forEach(function(item) {
+                    item.style.backgroundColor = '';
+                });
+                break;
+            case 'mouseover':
+            case 'click':
+                e.layer.setStyle({fillOpacity: 0.6})
+                overlayLegend.getOverlayItem(e.layer).style.backgroundColor = "lightgrey";
+                break;
+        }    
+    });    
 </script>
 
 </body>
