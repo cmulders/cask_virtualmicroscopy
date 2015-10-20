@@ -103,9 +103,8 @@ L.Control.OverlayLegend = L.Control.Legend.extend({
             if(!(overlay instanceof L.Path)) { return; }
             var overlayItem = L.DomUtil.create('li', 'leaflet-legend-overlay', overlayList);
 
-
             var overlayName = overlay.feature && overlay.feature.properties && overlay.feature.properties.name || "Overlay"
-            console.log(overlay.feature, overlayName)
+
             var colorBox = L.DomUtil.create('i', '', overlayItem);
             colorBox.style.background = overlay.options.color;
             
