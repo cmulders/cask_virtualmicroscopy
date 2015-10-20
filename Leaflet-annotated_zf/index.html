@@ -200,6 +200,22 @@
                 break;
         }    
     });    
+    
+    map.on('zoomend', function(e) {
+        if(e.target.getZoom() >= 7) {
+            e.target.removeLayer(annotations);
+            e.target.removeControl(overlayLegend);
+            
+            //Reset legend and selected overlay
+            annotations.setStyle({fillOpacity: 0.3})
+            overlayLegend.getOverlayItems().forEach(function(item) {
+                item.style.backgroundColor = '';
+            });
+        } else if(!e.target.hasLayer(annotations)) {
+            e.target.addLayer(annotations);
+            e.target.addControl(overlayLegend);
+        }
+    })
 </script>
 
 </body>
