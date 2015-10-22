@@ -267,8 +267,11 @@
     });
     
     var urlParams = L.Util.parseParamString(window.location.search);
-    if(urlParams.data) {
+    if(urlParams.data && urlParams.data != "") {
         L.storage.myjson().load(urlParams.data, function(geoJSON) {
+            if(!geoJSON) { 
+                return; 
+            }
             featuresLayer.addData(geoJSON)
         });
 	}
