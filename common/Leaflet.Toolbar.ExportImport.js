@@ -13,13 +13,33 @@ var ShowLink = L.ToolbarAction.extend({
         this._featureLayer = this.options.layer
         this._storageController = this.options.storage
         
-        
-        parentAction.registerExportHook(L.bind(this.onUpdate, this))
+        parentAction.registerShowHook(L.bind(this.onShow, this))
     },
     
-    onUpdate: function(storageID) {
-        this._inputField = this._inputField || this._icon.getElementsByTagName('input')[0]
-        this._inputField.value = this._getLink(storageID)
+    _getInput: function() {
+        if(!this._inputField){
+            this._inputField = this._icon.getElementsByTagName('input')[0]
+        }
+        return this._inputField;
+    },
+    
+    onShow: function(caller) {
+      
+        var inputEle = this._getInput();
+        
+        inputEle.value = "Loading.."
+        inputEle.disabled = true;
+        
+        this._storageController.save(this._featureLayer,L.bind(this.onLink,this));
+    },
+    
+    onLink: function(storageID) {
+        var inputEle = this._getInput()
+        
+        inputEle.value = this._getLink(storageID)
+        inputEle.disabled = false;
+        inputEle.focus();
+        inputEle.setSelectionRange(0, inputEle.value.length);
     },
     
     _getLink: function (dataValue) {
@@ -54,21 +74,17 @@ var ExportShapes = L.ToolbarAction.extend({
     initialize: function(map, options) {
         L.ToolbarAction.prototype.initialize.call(this, options);
         this._map = map;
-        this._featureLayer = this.options.layer
-        this._storageController = this.options.storage
-        this._exportHooks = []
+        this._showHooks = []
     },
-    
-    registerExportHook: function(fn) {
-        this._exportHooks.push(fn);
+
+    registerShowHook: function(fn) {
+        this._showHooks.push(fn);
     },
 
     addHooks: function () {
-        this._storageController.save(this._featureLayer, L.bind(function(storageID) {            
-            for(hook in this._exportHooks) {
-                this._exportHooks[hook](storageID)
-            }        
-        }, this));    
+        for(hook in this._showHooks) {
+            this._showHooks[hook](this)
+        }      
     },
     
     doneAction: function() {
