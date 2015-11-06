@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Leaflet-viewer demo page</title>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">    
+    <!-- Leaflet core -->
+    <link rel="stylesheet" type="text/css" href="../lib/Leaflet-1.0.0-beta.2/dist/leaflet.css" />
+	<script type="text/javascript" src="../lib/Leaflet-1.0.0-beta.2/dist/leaflet-src.js"></script>
+		
+    <!-- Leaflet.Toolbar -->
+    <link rel="stylesheet" type="text/css" href="../lib/Leaflet.toolbar-touch-icons/dist/leaflet.toolbar.css" />
+	<script type="text/javascript" src="../lib/Leaflet.toolbar-touch-icons/dist/leaflet.toolbar-src.js"></script>
+			
+	<!-- L.TileLayer.Zoomify -->
+	<script type="text/javascript" src="../lib/Leaflet.Zoomify-gh-pages/src/L.TileLayer.Zoomify.js"></script>
+
+    <!-- L.Map.UrlView -->
+	<script type="text/javascript" src="../lib/Leaflet.UrlView-gh-pages/src/Map.UrlView.js"></script>
+
+    <!-- L.Editable -->
+	<script type="text/javascript" src="../lib/Leaflet.Editable-0.7.0-beta.1/src/Leaflet.Editable.js"></script>
+
+    <!-- L.Control.ThumbnailMap -->
+    <link rel="stylesheet" type="text/css" href="../lib/Leaflet.ThumbnailMap-gh-pages/src/Leaflet.ThumbnailMap.css" />
+	<script type="text/javascript" src="../lib/Leaflet.ThumbnailMap-gh-pages/src/Leaflet.ThumbnailMap.js"></script>
+
+    <!-- L.FeatureStorage -->
+	<script type="text/javascript" src="../lib/Leaflet.FeatureStorage-gh-pages/src/Leaflet.FeatureStorage.JSON.js"></script>
+
+	<!-- Leaflet.Util.Extra -->
+	<script type="text/javascript" src="../js/Leaflet.Util.Extra.js"></script>
+
+    <!-- L.Mixin.FeatureProperties -->
+	<script type="text/javascript" src="../js/Leaflet.Mixin.FeatureProperties.js"></script>
+
+    <!-- L.Marker.Label -->
+	<script type="text/javascript" src="../js/Leaflet.Marker.Label.js"></script>
+
+    <!-- L.Toolbar.Common -->
+	<script type="text/javascript" src="../js/Leaflet.Toolbar.Common.js"></script>
+	
+    <!-- L.Control.SlideScale -->
+	<script type="text/javascript" src="../js/Leaflet.Control.SlideScale.js"></script>
+
+    <!-- L.Control.Ruler -->
+    <link rel="stylesheet" type="text/css" href="../js/Leaflet.Ruler/Leaflet.Control.Ruler.css" />
+	<script type="text/javascript" src="../js/Leaflet.Ruler/Leaflet.Control.Ruler.js"></script>
+	<script type="text/javascript" src="../js/Leaflet.Toolbar.Ruler.js"></script>
+
+    <!-- L.Control.Legend -->
+    <link rel="stylesheet" type="text/css" href="../js/Leaflet.Legend/Leaflet.Control.Legend.css" />
+	<script type="text/javascript" src="../js/Leaflet.Legend/Leaflet.Control.Legend.js"></script>
+
+    <!-- L.Toolbar.Annotate -->
+	<script type="text/javascript" src="../js/Leaflet.Toolbar.Annotate.js"></script>
+
+    <!-- L.Toolbar.ExportImport -->
+	<script type="text/javascript" src="../js/Leaflet.Toolbar.ExportImport.js"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="../css/styles.css">
+
+	<script type="text/javascript" src="annotations.js"></script>
+  </head>
+<body>
+
+<div id="map"></div>
+
+<script type="text/javascript">
+
+//Slide parameters
+	var slide = {id:'zebravis', width:921600, height:380928, res:1.627e-9};
+
+//Custom CRS to translate between pixels and meters.
+    L.CRS.Slide = L.extend({}, L.CRS.Simple,{
+        transformation: (function(){
+            var longestSide = Math.max(slide.width, slide.height);
+            var maxZoom = Math.ceil(Math.log(longestSide / 256) / Math.log(2));
+            var correctedRes = slide.res*Math.pow(2, maxZoom);
+            return new L.Transformation(1 / correctedRes, 0, -1 / correctedRes, 0)
+        })()
+    });
+    
+//Map setup
+    var map = L.map('map', {
+        crs: L.CRS.Slide,
+        urlView:true,
+        editable: false
+    });
+		
+	var layerMap = L.tileLayer.zoomify('http://anatomie01.lumc.nl/microscopy/slides/{id}/{g}/{z}-{x}-{y}.jpg', {
+		width: slide.width,
+		height: slide.height,
+		id: slide.id,
+		attribution: 'Zoomify slide viewer by <a href="https://github.com/cmulders">Coen Mulders</a>'
+	}).addTo(map);
+	
+	//Prevent the map to zoom further than we specify
+	map.setMaxZoom(layerMap.options.maxNativeZoom);
+	
+	if(!map.urlSetView) {
+        //reset the viewport to fit the current slide
+        map.fitBounds(layerMap.options.bounds);
+	}
+	
+//Scalebar
+	L.control.scale({imperial:false}).addTo(map);
+
+//Minimap
+    //Plugin magic goes here! Note that you cannot use the same layer object again, as that will confuse the two map controls
+    var layerMinimap = L.tileLayer.zoomify(layerMap._url, layerMap.options)
+
+    var bounds = layerMinimap.options.bounds
+    var zeroZoomSize = map.project(bounds.getSouthEast(),0)
+	
+    var miniMap = L.control.thumbnailmap(layerMinimap,{
+		height: zeroZoomSize.y, 
+		width: zeroZoomSize.x, 
+		toggleDisplay: true,
+		autoToggleDisplay: true,
+		position:'topright',
+		aimingRectOptions: {color: "#29ffde"},
+	}).addTo(map);
+
+//Ruler toolbar icon
+    L.AnnotateToolbar = L.Toolbar.Control.extend({
+        options: {
+            position: 'topleft',
+            actions: [
+                RulerAction,
+            ],
+            className: ''
+        }
+    });
+    var annotateToolbar = new L.AnnotateToolbar().addTo(map);
+
+    //Options for our loaded features (setting color/style)
+    var annotationsOptions = {
+        weight:1, 
+        opacity:0.3, 
+        style: function(feature) {
+            return feature.properties && feature.properties.style || {};
+        }
+    }
+    
+    var annotations = L.geoJson(false, annotationsOptions).addTo(map)
+    
+    for( var type in ZFannotations ){
+        annotations.addData(JSON.parse(ZFannotations[type]))
+    }
+    
+    var overlayLegend = L.control.overlaylegend(annotations).addTo(map);
+    
+    annotations.on('mouseover mouseout click preclick',function(e) {
+        switch(e.type) {
+            case 'mouseout':
+            case 'preclick':
+                this.setStyle({fillOpacity: 0.3})
+                overlayLegend.getOverlayItems().forEach(function(item) {
+                    item.style.backgroundColor = '';
+                });
+                break;
+            case 'mouseover':
+            case 'click':
+                e.layer.setStyle({fillOpacity: 0.6})
+                overlayLegend.getOverlayItem(e.layer).style.backgroundColor = "lightgrey";
+                break;
+        }    
+    });    
+    
+    map.on('zoomend', function(e) {
+        if(e.target.getZoom() >= 7) {
+            e.target.removeLayer(annotations);
+            e.target.removeControl(overlayLegend);
+            
+            //Reset legend and selected overlay
+            annotations.setStyle({fillOpacity: 0.3})
+            overlayLegend.getOverlayItems().forEach(function(item) {
+                item.style.backgroundColor = '';
+            });
+        } else if(!e.target.hasLayer(annotations)) {
+            e.target.addLayer(annotations);
+            e.target.addControl(overlayLegend);
+        }
+    })
+</script>
+
+</body>
+</html>
