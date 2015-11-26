@@ -14,8 +14,8 @@
 /* custom toolbar styles */
 
 .leaflet-control-toolbar .leaflet-toolbar-1 > li > .leaflet-toolbar-icon.leaflet-toolbar-export-link {
-  height:auto;
-  line-height:normal;
+  height:auto !important;
+  line-height:normal !important;
 }
 
 .leaflet-toolbar-export-link textarea {
