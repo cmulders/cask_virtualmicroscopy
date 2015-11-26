@@ -69,21 +69,21 @@ L.Marker.Label = L.Marker.extend({
     
     showLabelEditor: function(autoOpen) {
         this.bindPopup(L.Util.bind(this._popupContent,this))
-		if(autoOpen) {
-		    this.openPopup()
-		}
+        if(autoOpen) {
+            this.openPopup()
+        }
         this.once('popupclose', this.unbindPopup)
     },
     
     _popupContent: function() {
-        var currentLabel = this.getElement().innerHTML;
+        var currentLabel = this.getElement().innerHTML.replace(/<br\s?\/?>/g,"\n");
         
-        var input = L.DomUtil.create('input', 'leaflet-label-input', false)
+        var input = L.DomUtil.create('textarea', 'leaflet-label-input', false)
 
-        input.setAttribute('value', currentLabel)
+        input.value = currentLabel;
 
         L.DomEvent.on(input, 'keyup', L.bind(function(e) { 
-            this.setContent(e.target.value)
+            this.setContent(e.target.value.replace(/\r\n|\r|\n/g,"<br />"))
         }, this));
         
         return input;
