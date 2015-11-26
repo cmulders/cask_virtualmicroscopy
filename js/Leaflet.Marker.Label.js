@@ -99,6 +99,8 @@ L.Marker.Label = L.Marker.extend({
     }
 })
 
+L.Marker.Label.include(L.Mixin.FeatureProperties);
+
 L.marker.label = function(latlng, options) {
     return new L.Marker.Label(latlng, options)
 }

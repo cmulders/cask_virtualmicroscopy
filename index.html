@@ -32,16 +32,18 @@
     <link rel="stylesheet" type="text/css" href="lib/Leaflet.ThumbnailMap-gh-pages/src/Leaflet.ThumbnailMap.css" />
     <link rel="stylesheet" type="text/css" href="lib/Leaflet.fullscreen-gh-pages/dist/leaflet.fullscreen.css" />
     <link rel="stylesheet" type="text/css" href="js/Leaflet.Ruler/Leaflet.Control.Ruler.css" />
+    <link rel="stylesheet" type="text/css" href="js/Leaflet.Legend/Leaflet.Control.Legend.css" />
   </head>
 <body>
 
 <div id="map"></div>
 
 <script type="text/javascript" src="bundle.min.js"></script>  
+<script type="text/javascript" src="annotated_zf/annotations.js"></script>
 <script type="text/javascript">
 
 //Slide parameters
-var slide = {id:'4qw_rot', width:25347, height:16946, res:0.789e-6};
+var slide = {id:'zebravis', width:921600, height:380928, res:1.627e-9};
 
 //Custom CRS to translate between pixels and meters.
 L.CRS.Slide = L.extend({}, L.CRS.Simple,{
@@ -100,6 +102,74 @@ var thumbnailmap = L.control.thumbnailmap(layerMinimap,{
     aimingRectOptions: {color: "#29ffde"},
 }).addTo(map);
 
+/* Zebrafish annotations */
+//Options for our loaded features (setting color/style)
+var annotationsOptions = {
+    weight:1, 
+    opacity:0.3, 
+    style: function(feature) {
+        return feature.properties && feature.properties.style || {};
+    }
+}
+
+var annotations = L.geoJson(false, annotationsOptions).addTo(map)
+
+for( var type in ZFannotations ){
+    annotations.addData(JSON.parse(ZFannotations[type]))
+}
+
+var overlayLegend = L.control.overlaylegend(annotations);
+
+annotations.on('mouseover mouseout click preclick',function(e) {
+    switch(e.type) {
+        case 'mouseout':
+        case 'preclick':
+            this.setStyle({fillOpacity: 0.3})
+            overlayLegend.getOverlayItems().forEach(function(item) {
+                item.style.backgroundColor = '';
+            });
+            break;
+        case 'mouseover':
+        case 'click':
+            e.layer.setStyle({fillOpacity: 0.6})
+            overlayLegend.getOverlayItem(e.layer).style.backgroundColor = "lightgrey";
+            break;
+    }    
+});
+
+var forcedOff = false;
+map.on('overlayadd overlayremove', function(e) {
+    forcedOff = e.type === 'overlayremove';
+    if(forcedOff) {
+      e.target.removeControl(overlayLegend);
+    } else {
+      e.target.addControl(overlayLegend);
+    }
+});
+
+map.on('zoomend', function(e) {
+    if(forcedOff) {
+      return;
+    } else if(e.target.getZoom() >= 7) {
+        e.target.removeLayer(annotations);
+        e.target.removeControl(overlayLegend);
+        
+        //Reset legend and selected overlay
+        annotations.setStyle({fillOpacity: 0.3})
+        overlayLegend.getOverlayItems().forEach(function(item) {
+            item.style.backgroundColor = '';
+        });
+    } else {
+      e.target.addLayer(annotations);
+      e.target.addControl(overlayLegend);
+    }
+}) 
+
+L.control.layers(false, {"Annotations": annotations}, {position:'bottomright', collapsed: false}).addTo(map);
+overlayLegend.addTo(map);
+
+
+/* Annotation capabilities */
 var featuresLayer = new L.GeoJSON(false, {
     //Use our custom maker label instead of default marker
     pointToLayer: function(geojson, latlng) {
@@ -199,14 +269,36 @@ L.ExportImportToolbar = L.Toolbar.Control.extend({
     }
 });
 
+
+//Save to localstorage if possible
+if(window.sessionStorage) {
+  map.on('editable:editing', function() {
+    sessionStorage.setItem('leaflet-viewer-cache-data', JSON.stringify(featuresLayer.toGeoJSON()) || {})
+    
+    //Expire in 10 minutes
+    sessionStorage.setItem('leaflet-viewer-cache-expire', +new Date() + 1 * 60 * 1000);
+  });
+}
+
 var urlParams = L.Util.parseParamString(window.location.search);
-var storageController = new L.FeatureStorage.Myjson({exportUrl:'error'});
-if(urlParams.data && urlParams.data != "") {
+var storageController = new L.FeatureStorage.Myjson;
+//Load data from local sessionStorage or from an datalink
+if(window.sessionStorage 
+    && sessionStorage.getItem('leaflet-viewer-cache-data')
+    && (sessionStorage.getItem('leaflet-viewer-cache-expire') - +new Date()) > 0) {
+  var data = sessionStorage.getItem('leaflet-viewer-cache-data');
+  featuresLayer.addData(JSON.parse(data));
+  
+} else if(urlParams.data && urlParams.data != "") {
     storageController.load(urlParams.data, function(geoJSON) {
         if(!geoJSON) { 
             return; 
         }
         featuresLayer.addData(geoJSON)
+    }, 
+    function (xmlhttp) { 
+      //error while loading
+      window.alert('Could not load data from storage! Wrong URL?');
     });
 }
 var exportToolbarOptions = {storage: storageController, layer:featuresLayer}

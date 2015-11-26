@@ -17,4 +17,5 @@ js/Leaflet.Ruler/Leaflet.Control.Ruler.js \
 js/Leaflet.Toolbar.Ruler.js \
 js/Leaflet.Toolbar.Annotate.js \
 js/Leaflet.Toolbar.ExportImport.js \
+js/Leaflet.Legend/Leaflet.Control.Legend.js \
 --stats --source-map-include-sources --source-map bundle.min.map --output bundle.min.js

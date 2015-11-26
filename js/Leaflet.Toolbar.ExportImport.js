@@ -30,14 +30,25 @@ var ShowLink = L.ToolbarAction.extend({
         inputEle.value = "Loading.."
         inputEle.disabled = true;
         
-        this._storageController.save(this._featureLayer,L.bind(this.onLink,this));
+        var succesCallback = L.bind(this.onLink,this);
+        var that = this;
+        this._storageController.save(this._featureLayer, succesCallback, function() {
+          //Failed to save, probably connection error, try once more
+          inputEle.value = "Loading... Failed, trying again"
+          
+          that._storageController.save(that._featureLayer, succesCallback, function() {
+            //Failed second time
+            inputEle.value = "Connection error, try again later";
+          });
+          
+        });
     },
     
     onLink: function(storageID) {
         var inputEle = this._getInput()
         
-        inputEle.value = this._getLink(storageID)
-        inputEle.disabled = false;
+        inputEle.value = !!storageID ? this._getLink(storageID) : "No features added yet!";
+        inputEle.disabled = storageID === false ? true : false;
         inputEle.focus();
         inputEle.setSelectionRange(0, inputEle.value.length);
     },
