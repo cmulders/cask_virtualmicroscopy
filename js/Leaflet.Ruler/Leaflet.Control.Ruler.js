@@ -35,8 +35,7 @@ L.Handler.Ruler = L.Handler.extend({
 	    
 	    //Content is a function for updating
 	    this._distancePopup.setContent(function(layer) {
-	        var map = layer._map,
-	            latlngs = layer.getLatLngs(),
+	        var latlngs = layer.getLatLngs(),
 	            distance = this._map.distance(latlngs[0],latlngs[1]),
         	    distanceObj = {magnitude:distance, unit:'m'}
 
@@ -161,11 +160,10 @@ L.Control.Ruler = L.Control.extend({
     
     onAdd: function (map) {
         var container = L.DomUtil.create('div', 'leaflet-control-ruler leaflet-control leaflet-bar'),
-            link = L.DomUtil.create('a', 'leaflet-control-ruler-measure material-icons', container);
+            link = L.DomUtil.create('a', 'leaflet-control-ruler-measure', container);
 
         link.href = '#';
         link.title = 'Measure';
-        link.innerHTML = 'straighten';
         L.DomEvent.on(link, 'click', L.DomEvent.stop)
                   .on(link, 'click', this._initRuler, this);
         

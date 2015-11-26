@@ -1,9 +1,8 @@
 var RulerAction = L.ToolbarAction.extend({
     options: {
         toolbarIcon: {
-            html: '<i class="material-icons">straighten</i>',
             tooltip: 'Measure',
-            className: 'leaflet-control-ruler-measure'
+            className: 'svg-icon leaflet-control-ruler-measure'
         },
         
         subToolbar: new (L.Toolbar.extend({}))({
