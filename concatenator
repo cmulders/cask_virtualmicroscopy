@@ -1,0 +1,20 @@
+#!/bin/bash
+uglifyjs \
+lib/Leaflet-1.0.0-beta.2/dist/leaflet-src.js \
+lib/Leaflet.toolbar-touch-icons/dist/leaflet.toolbar-src.js \
+lib/Leaflet.Zoomify-gh-pages/src/L.TileLayer.Zoomify.js \
+lib/Leaflet.UrlView-gh-pages/src/Map.UrlView.js \
+lib/Leaflet.Editable-0.7.0-beta.1/src/Leaflet.Editable.js \
+lib/Leaflet.ThumbnailMap-gh-pages/src/Leaflet.ThumbnailMap.js \
+lib/Leaflet.FeatureStorage-gh-pages/src/Leaflet.FeatureStorage.JSON.js \
+lib/Leaflet.fullscreen-gh-pages/dist/Leaflet.fullscreen.js \
+js/Leaflet.Util.Extra.js \
+js/Leaflet.Mixin.FeatureProperties.js \
+js/Leaflet.Marker.Label.js \
+js/Leaflet.Toolbar.Common.js \
+js/Leaflet.Control.SlideScale.js \
+js/Leaflet.Ruler/Leaflet.Control.Ruler.js \
+js/Leaflet.Toolbar.Ruler.js \
+js/Leaflet.Toolbar.Annotate.js \
+js/Leaflet.Toolbar.ExportImport.js \
+--stats --source-map-include-sources --source-map bundle.min.map --output bundle.min.js
