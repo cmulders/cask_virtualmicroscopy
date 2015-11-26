@@ -65,10 +65,19 @@ L.Marker.Label = L.Marker.extend({
         icon.style.marginLeft = (-halfSize.x) + "px"
         icon.style.marginTop  = (-halfSize.y) + "px"
         
+        this.offsetAnchor = L.point(0, -halfSize.y);
+    },
+    
+    _getPopupAnchor: function() {
+      return this.offsetAnchor || L.point(0,0);
     },
     
     showLabelEditor: function(autoOpen) {
-        this.bindPopup(L.Util.bind(this._popupContent,this))
+        var popupOptions = {
+          closeOnClick: !L.Browser.touch //Touch interface friendly
+        };
+        
+        this.bindPopup(L.Util.bind(this._popupContent,this), popupOptions)
         if(autoOpen) {
             this.openPopup()
         }

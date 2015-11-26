@@ -145,7 +145,8 @@ featuresLayer.on('layeradd', function(event) {
                     EditLabel,
                     (e.target.editEnabled() ? DoneEdit : MoveLabel), 
                     DeleteFeature,
-                    ]
+                    ],
+                anchor: e.target.offsetAnchor
             })
 
             editLabelPopup.addTo(e.target._map, {feature: e.target})

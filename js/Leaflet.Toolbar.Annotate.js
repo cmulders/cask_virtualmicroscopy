@@ -9,9 +9,6 @@ var newFeature = L.ToolbarAction.extend({
         this._map = map;
         this._editTools = this.options.editTools
         
-        this._editTools.on('editable:drawing:start', this._onDrawingStart, this)
-        this._editTools.on('editable:drawing:cancel', this._onDrawingCancel, this)
-        this._editTools.on('editable:drawing:end', this._onDrawingEnd, this)
     },
         
     removeHooks: function() {
@@ -33,13 +30,18 @@ var newFeature = L.ToolbarAction.extend({
 
     _onDrawingStart: function(e) {
         this._currentFeature = e.layer
+
+        this._currentFeature.once('editable:drawing:cancel', this._onDrawingCancel, this)
+        this._currentFeature.once('editable:drawing:end', this._onDrawingEnd, this)
     },
     
     _onDrawingCancel: function(e) {
+        this._currentFeature.off('editable:drawing:end', this._onDrawingEnd, this)
         e.layer.remove()
     },
     
     _onDrawingEnd: function(e) {
+        this._currentFeature.off('editable:drawing:cancel', this._onDrawingCancel, this)
         this.disable()
     }    
 });
@@ -57,7 +59,18 @@ var newPolygon = newFeature.extend({
     },
 
     addHooks: function () {
+        this._editTools.once('editable:drawing:start', this._onDrawingStart, this)
+        this._editTools.once('editable:drawing:clicked', this._onDrawingFirstClicked, this)
         this._editTools.startPolygon()
+    },
+    
+    removeHooks: function() {
+      newFeature.prototype.removeHooks.call(this);
+      this._editTools.off('editable:drawing:clicked', this._onDrawingFirstClicked, this)            
+    },
+    
+    _onDrawingFirstClicked: function(e) {
+      L.DomUtil.addClass(e.latlng.__vertex.getElement(), 'closing-vertex');
     }
 });
 
@@ -74,9 +87,20 @@ var newLabel = newFeature.extend({
     },
         
     addHooks: function () {
+        this._editTools.once('editable:drawing:start', this._onDrawingStart, this)
+        this._editTools.once('editable:drawing:click', this._onDrawingClick, this)
         this._editTools.startMarker()
     },
-    
+
+    removeHooks: function() {
+      newFeature.prototype.removeHooks.call(this);
+      this._editTools.off('editable:drawing:click', this._onDrawingClick, this)
+      this._currentFeature.showLabelEditor( L.Browser.touch );
+    },
+
+    _onDrawingClick: function(e) {
+      e.layer.setLatLng(e.latlng);
+    }
 });
 
 var SimpleFeatureAction = L.ToolbarAction.extend({
