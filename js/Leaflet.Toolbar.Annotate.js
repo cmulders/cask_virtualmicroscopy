@@ -75,31 +75,8 @@ var newLabel = newFeature.extend({
         
     addHooks: function () {
         this._editTools.startMarker()
-    }   
-});
-
-var DoneAllEdit = L.ToolbarAction.extend({
-    options: {
-        toolbarIcon: {
-            html: '<i class="material-icons">done_all</i>',
-            tooltip: 'Done all',
-        },
-    
     },
     
-    initialize: function(map, options) {
-        L.ToolbarAction.prototype.initialize.call(this, options);
-        this._featureLayer = this.options.editTools.featuresLayer;
-    },
-    
-    addHooks: function (map) {
-        var layers = this._featureLayer.getLayers();
-        layers.forEach(function(layer) {
-            layer.disableEdit()
-        })
-        
-        this.disable()
-    },
 });
 
 var SimpleFeatureAction = L.ToolbarAction.extend({
