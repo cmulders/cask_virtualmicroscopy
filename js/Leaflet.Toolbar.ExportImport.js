@@ -1,8 +1,8 @@
 var ShowLink = L.ToolbarAction.extend({
     options: {
         toolbarIcon: {
-            html: '<input class="leaflet-label-input" type="text">',
-            className: 'action-text-field'
+            html: '<textarea rows="5" cols="30" readonly="readonly">',
+            className: 'leaflet-toolbar-export-link action-text-field'
         },
     },
     
@@ -18,7 +18,7 @@ var ShowLink = L.ToolbarAction.extend({
     
     _getInput: function() {
         if(!this._inputField){
-            this._inputField = this._icon.getElementsByTagName('input')[0]
+            this._inputField = this._icon.getElementsByTagName('textarea')[0]
         }
         return this._inputField;
     },
@@ -62,12 +62,12 @@ var ShowLink = L.ToolbarAction.extend({
 var ExportShapes = L.ToolbarAction.extend({
     options: {
         toolbarIcon: {
-            html: '<i class="material-icons">link</i>',
             tooltip: 'Export shapes',
+            className: 'svg-icon link'
         },
         
         subToolbar: new (L.Toolbar.extend({}))({
-            actions: [ShowLink,DoneAction]
+            actions: [DoneAction, ShowLink]
         }),
     },
     
