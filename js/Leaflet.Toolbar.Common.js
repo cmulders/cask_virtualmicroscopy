@@ -1,8 +1,8 @@
 var DoneAction = L.ToolbarAction.extend({
     options: {
         toolbarIcon: {
-            html: '<i class="material-icons">done</i>',
             tooltip: 'Done',
+            className: 'svg-icon done white'
         },
     },
     
@@ -18,8 +18,8 @@ var DoneAction = L.ToolbarAction.extend({
 var CancelAction = L.ToolbarAction.extend({
     options: {
         toolbarIcon: {
-            html: '<i class="material-icons">cancel</i>',
             tooltip: 'Cancel',
+            className: 'svg-icon cancel white'
         },
     },
     

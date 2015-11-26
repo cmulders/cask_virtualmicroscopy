@@ -47,9 +47,8 @@ var newFeature = L.ToolbarAction.extend({
 var newPolygon = newFeature.extend({
     options: {
         toolbarIcon: {
-            html: '<i class="material-icons">mode_edit</i>',
             tooltip: 'Annotate a structure',
-            className: ''
+            className: 'svg-icon mode-edit'
         },
     
         subToolbar: new (L.Toolbar.extend({}))({
@@ -65,9 +64,8 @@ var newPolygon = newFeature.extend({
 var newLabel = newFeature.extend({
     options: {
         toolbarIcon: {
-            html: '<i class="material-icons">place</i>',
-            tooltip: 'Annotate a structure',
-            className: ''
+            tooltip: 'Label a structure',
+            className: 'svg-icon text-field'
         },
     
         subToolbar: new (L.Toolbar.extend({}))({
@@ -119,8 +117,8 @@ var SimpleFeatureAction = L.ToolbarAction.extend({
 var DoneEdit = SimpleFeatureAction.extend({
     options: {
         toolbarIcon: {
-            html: '<i class="material-icons">done</i>',
             tooltip: 'Done editing',
+            className: 'svg-icon done'
         },
     },
     
@@ -133,8 +131,8 @@ var DoneEdit = SimpleFeatureAction.extend({
 var EditFeature = SimpleFeatureAction.extend({
     options: {
         toolbarIcon: {
-            html: '<i class="material-icons">mode_edit</i>',
             tooltip: 'Edit annotation',
+            className: 'svg-icon mode-edit'
         },
     
     },
@@ -148,8 +146,8 @@ var EditFeature = SimpleFeatureAction.extend({
 var DeleteFeature = SimpleFeatureAction.extend({
     options: {
         toolbarIcon: {
-            html: '<i class="material-icons">delete</i>',
             tooltip: 'Delete annotation',
+            className: 'svg-icon delete'
         },
     
     },
@@ -163,8 +161,8 @@ var DeleteFeature = SimpleFeatureAction.extend({
 var FeatureToFront = SimpleFeatureAction.extend({
     options: {
         toolbarIcon: {
-            html: '<i class="material-icons">flip_to_front</i>',
             tooltip: 'To front',
+            className: 'svg-icon flip-to-front'
         },
     
     },
@@ -178,8 +176,8 @@ var FeatureToFront = SimpleFeatureAction.extend({
 var FeatureToBack = SimpleFeatureAction.extend({
     options: {
         toolbarIcon: {
-            html: '<i class="material-icons">flip_to_back</i>',
             tooltip: 'To back',
+            className: 'svg-icon flip-to-back'
         },
     
     },
@@ -193,8 +191,8 @@ var FeatureToBack = SimpleFeatureAction.extend({
 var MoveLabel = SimpleFeatureAction.extend({
     options: {
         toolbarIcon: {
-            html: '<i class="material-icons">open_with</i>',
             tooltip: 'Move label',
+            className: 'svg-icon open-with'
         },
     
     },
@@ -208,8 +206,8 @@ var MoveLabel = SimpleFeatureAction.extend({
 var EditLabel = SimpleFeatureAction.extend({
     options: {
         toolbarIcon: {
-            html: '<i class="material-icons">text_format</i>',
             tooltip: 'Edit text',
+            className: 'svg-icon text-format'
         },
     
     },
