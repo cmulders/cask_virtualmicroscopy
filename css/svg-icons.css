@@ -1,6 +1,6 @@
 /* SVG Icons instead of material icons */
 .svg-icon {
-  background-size: 80% 80%;
+  background-size: auto 80%;
   background-repeat: no-repeat;
   background-position: center;
 }
