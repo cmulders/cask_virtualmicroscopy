@@ -170,21 +170,21 @@ overlayLegend.addTo(map);
 
 
 /* Annotation capabilities */
-var featuresLayer = new L.GeoJSON(false, {
-    //Use our custom maker label instead of default marker
-    pointToLayer: function(geojson, latlng) {
-        if(geojson.properties.content) {
-            return new L.Marker.Label(latlng).setContent(geojson.properties.content)
-        } else {
-            return new L.Marker(latlng)
-        }
-    }
-})
+var featuresLayer = new L.GeoJSON
 featuresLayer.addTo(map)
 
 //Setup edititing
 var editor = new L.Editable(map,{featuresLayer: featuresLayer, markerClass: L.Marker.Label})
 L.setOptions(featuresLayer, {editOptions: {editTools: editor}})
+
+//Use our custom maker label instead of default marker
+featuresLayer.options.pointToLayer = function(geojson, latlng) {
+  if(geojson.properties.content) {
+      return new L.Marker.Label(latlng, {editOptions: {editTools: editor}}).setContent(geojson.properties.content)
+  } else {
+      return new L.Marker(latlng, {editOptions: {editTools: editor}})
+  }
+}
 
 L.AnnotateToolbar = L.Toolbar.Control.extend({
     options: {
