@@ -207,7 +207,7 @@ featuresLayer.on('layeradd', function(event) {
     
     if(event.layer instanceof L.Marker.Label) {
         event.layer.on('contextmenu', function(e) {
-            if(e.target.editor && e.target.editor.tools.drawing()) {
+            if(e.target.editor && e.target.editor.tools && e.target.editor.tools.drawing()) {
                 return;
             }
             var editLabelPopup = new L.Toolbar.Popup(e.latlng, {
@@ -272,12 +272,14 @@ L.ExportImportToolbar = L.Toolbar.Control.extend({
 
 //Save to localstorage if possible
 if(window.sessionStorage) {
-  map.on('editable:editing', function() {
+  var updateStorage = function() {
     sessionStorage.setItem('leaflet-viewer-cache-data', JSON.stringify(featuresLayer.toGeoJSON()) || {})
     
     //Expire in 10 minutes
-    sessionStorage.setItem('leaflet-viewer-cache-expire', +new Date() + 1 * 60 * 1000);
-  });
+    sessionStorage.setItem('leaflet-viewer-cache-expire', +new Date() + 10 * 60 * 1000);
+  }
+  map.on('editable:editing', updateStorage);
+  featuresLayer.on('layeradd layerremove marker:label:edited', updateStorage);
 }
 
 var urlParams = L.Util.parseParamString(window.location.search);

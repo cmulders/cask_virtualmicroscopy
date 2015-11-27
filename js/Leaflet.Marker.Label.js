@@ -10,6 +10,21 @@ L.Marker.Label = L.Marker.extend({
         interactive: true,
         draggable: false,   
     },
+
+    onAdd: function (map) {
+      this.on('move contentupdate drag', this.onEdit, this);
+      L.Marker.prototype.onAdd.call(this, map);
+    },
+
+    onRemove: function () {
+      this.off('move contentupdate drag', this.onEdit, this);
+      L.Marker.prototype.onRemove.call(this);
+    },
+    
+    onEdit: function(e) {
+      //Propagate to event parents
+      this.fire('marker:label:edited', {originalEvent: e}, true);
+    },
     
     setContent: function(content) {
         this._content = content;
@@ -17,7 +32,7 @@ L.Marker.Label = L.Marker.extend({
         if(this._map)
     		this.update();
 		
-		return this;
+		  return this;
     },
     
     update: function(e) {
@@ -30,25 +45,25 @@ L.Marker.Label = L.Marker.extend({
     },
     
     _updateContent: function() {
-		if (!this.getElement()) { return; }
+      if (!this.getElement()) { return; }
 
-		var node = this.getElement();
-		var content = this._content || 'Placeholder';
+      var node = this.getElement();
+      var content = this._content || 'Placeholder';
         
-        //If we have feature property editing
-        if(this.setProperties) {
-            this.setProperties({content: content})
+          //If we have feature property editing
+          if(this.setProperties) {
+              this.setProperties({content: content})
+          }
+        
+      if (typeof content === 'string') {
+        node.innerHTML = content;
+      } else {
+        while (node.hasChildNodes()) {
+          node.removeChild(node.firstChild);
         }
-        
-		if (typeof content === 'string') {
-			node.innerHTML = content;
-		} else {
-			while (node.hasChildNodes()) {
-				node.removeChild(node.firstChild);
-			}
-			node.appendChild(content);
-		}
-		this.fire('contentupdate');      
+        node.appendChild(content);
+      }
+      this.fire('contentupdate', {layer: this});      
     },
     
     _updateSize: function() {
