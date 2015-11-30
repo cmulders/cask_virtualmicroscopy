@@ -34,13 +34,17 @@ var ShowLink = L.ToolbarAction.extend({
         var that = this;
         this._storageController.save(this._featureLayer, succesCallback, function() {
           //Failed to save, probably connection error, try once more
-          inputEle.value = "Loading... Failed, trying again"
+          inputEle.value = "Loading... Failed (1/3), trying again"
           
-          that._storageController.save(that._featureLayer, succesCallback, function() {
+          setTimeout(function() { that._storageController.save(that._featureLayer, succesCallback, function() {
             //Failed second time
-            inputEle.value = "Connection error, try again later";
-          });
-          
+            inputEle.value = "Loading... Failed again (2/3), trying again";
+            
+            setTimeout(function() { that._storageController.save(that._featureLayer, succesCallback, function() {
+              //Failed third time
+              inputEle.value = "Failed again (3/3), Connection error, try again later";
+            })}, 1000);
+          })}, 1000);      
         });
     },
     
