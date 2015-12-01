@@ -19,7 +19,7 @@
 
 .leaflet-control-ruler-measure
 {
-  background-image: url('data:image/svg+xml;utf8,%3Csvg%20height=%2236%22%20viewBox=%220%200%2024%2024%22%20width=%2236%22%20xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cpath%20d=%22M0%200h24v24H0z%22%20fill=%22none%22/%3E%3Cpath%20d=%22M21%206H3c-1.1%200-2%20.9-2%202v8c0%201.1.9%202%202%202h18c1.1%200%202-.9%202-2V8c0-1.1-.9-2-2-2zm0%2010H3V8h2v4h2V8h2v4h2V8h2v4h2V8h2v4h2V8h2v8z%22/%3E%3C/svg%3E');
+  background-image: url('data:image/svg+xml;charset=utf8,%3Csvg%20height=%2236%22%20viewBox=%220%200%2024%2024%22%20width=%2236%22%20xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cpath%20d=%22M0%200h24v24H0z%22%20fill=%22none%22/%3E%3Cpath%20d=%22M21%206H3c-1.1%200-2%20.9-2%202v8c0%201.1.9%202%202%202h18c1.1%200%202-.9%202-2V8c0-1.1-.9-2-2-2zm0%2010H3V8h2v4h2V8h2v4h2V8h2v4h2V8h2v4h2V8h2v8z%22/%3E%3C/svg%3E');
   background-size: 80% 80%;
   background-repeat: no-repeat;
   background-position: center;
